@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context="com.enavamaratha.enavamaratha.activity.Epaper">
+
+    <item android:id="@+id/save" android:title="Save ePaper"
+        android:icon="@drawable/ic_save_white"
+        android:orderInCategory="100" app:showAsAction="always" />
+    <item
+        android:id="@+id/menu_hommee"
+        android:icon="@drawable/ic_home_white"
+        android:title="@string/menu_home"
+        app:showAsAction="always"
+        />
+</menu>

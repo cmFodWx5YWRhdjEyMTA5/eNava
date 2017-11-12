@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="card_color" format="reference"/>
+    <declare-styleable name="JellyRefreshLayout">
+        <attr name="jellyColor" format="color"/>
+        <attr name="headerHeight" format="dimension"/>
+        <attr name="pullHeight" format="dimension"/>
+        <attr name="triggerHeight" format="dimension"/>
+    </declare-styleable>
+</resources>

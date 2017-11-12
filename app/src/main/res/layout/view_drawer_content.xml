@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:showIn="@layout/view_left_drawer">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:background="@drawable/llogoo"
+        android:layout_height="75dp"
+        android:weightSum="1">
+
+        <ImageButton
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="-15dp"
+            android:onClick="onClickHome"
+            android:src="@drawable/ic_home_color"
+            android:id="@+id/imageButton" />
+
+        <ImageButton
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onClickSearch"
+            android:layout_marginLeft="200dp"
+            android:src="@drawable/ic_search_color"
+           android:layout_marginTop="15dp"
+           />
+
+
+
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/drawer_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:choiceMode="singleChoice"
+        android:divider="#5fb0c9"
+        android:dividerHeight="1dp"
+        android:footerDividersEnabled="false"/>
+
+</LinearLayout>
