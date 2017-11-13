@@ -1,17 +1,27 @@
 package com.enavamaratha.enavamaratha.activity;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Environment;
+import android.provider.Settings;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.enavamaratha.enavamaratha.R;
@@ -20,6 +30,16 @@ import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.github.barteksc.pdfviewer.listener.OnPageChangeListener;
 import com.github.barteksc.pdfviewer.scroll.DefaultScrollHandle;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.SnackbarOnAnyDeniedMultiplePermissionsListener;
+import com.karumi.dexter.listener.single.PermissionListener;
+import com.karumi.dexter.listener.single.SnackbarOnDeniedPermissionListener;
 import com.shockwave.pdfium.PdfDocument;
 
 import java.io.BufferedInputStream;
@@ -39,20 +59,21 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
     private static final String TAG = EpaperPdfActivity.class.getSimpleName();
 
     // Pdf Name will be : DD_MM_YYYY.pdf
-    // Store this file in sd card folder
+    // Store this file in sd card folder under NavaMaratha folder
     private PDFView pdfView;
+    private RelativeLayout RelDeniedLayout;
+    private Button btnSettings;
 
     private String pdfName,mSelectedDate,mSelectedDatePdfName,mPdfUrl,mUrlSlash,mePaperPdfUrl;
 
     public static final String SAMPLE_FILE = "2017-11-04.pdf";
-
-
 
     // Progress Dialog
     private ProgressDialog pDialog,progressDialog;
     // Progress dialog type (0 - for Horizontal progress bar)
     public static final int progress_bar_type = 0;
     Integer pageNumber = 0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +83,125 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
+        //  Single Runtime Permission for Above Marshmallow
+        // External Storage Permission required for read and write pdf file in sd card
+        // Uses Library
+        // ---- https://github.com/Karumi/Dexter
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+        {
+
+
+            if (ContextCompat.checkSelfPermission(getApplicationContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+
+                Dexter.withActivity(this)
+                        .withPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .withListener(new PermissionListener() {
+                            @Override
+                            public void onPermissionGranted(PermissionGrantedResponse response) {
+
+                            }
+
+                            @Override
+                            public void onPermissionDenied(PermissionDeniedResponse response) {
+
+                                // we need to initialisation view for snackbar
+                               // initView();
+
+
+                                if (response.isPermanentlyDenied()) {
+
+                                    StoragePermissionDeniedView();
+                                   /* Snackbar snackbar = Snackbar.make(pdfView, "Storage access is needed for ePaper", Snackbar.LENGTH_LONG)
+                                            .setAction("Settings", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    openSettings();
+                                                }
+                                            });
+
+                                    snackbar.show();*/
+                                } else {
+
+                                    StoragePermissionDeniedView();
+                                    /*Snackbar snackbar = Snackbar.make(pdfView, "Storage access is needed for ePaper", Snackbar.LENGTH_LONG)
+                                            .setAction("Settings", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                    openSettings();
+                                                }
+                                            });
+
+                                    snackbar.show();*/
+                                }
+
+
+                            }
+
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
+                                token.continuePermissionRequest();
+                            }
+                        }).check();
+
+
+            }
+
+            // If Permission is granted then download paper and view
+            else
+            {
+
+                initView();
+
+                ReadEPaper();
+
+            }
+
+
+
+        }
+
+
+        // For below than marshmallow versions
+        else {
+
+            initView();
+
+            // Download Epaper and view ePaper
+            ReadEPaper();
+
+        }
+
+
+
+
+
+
+
+
+
+    }
+
+
+
+    // We Create methods  because we need for above marshmallow and below that
+    private void initView()
+    {
+
+
+        // Pdf View
         pdfView = (PDFView)findViewById(R.id.pdfView);
+
+        /// ---------- Permission Denied Layout
+
+        RelDeniedLayout = (RelativeLayout)findViewById(R.id.RelDenied);
+        btnSettings = (Button)findViewById(R.id.btnSettings);
+
+        //-----------
+
         progressDialog = new ProgressDialog(EpaperPdfActivity.this);
         progressDialog.setMessage("Please Wait...");
         progressDialog.setCancelable(false);
@@ -77,16 +216,40 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
         mSelectedDatePdfName = getIntent().getStringExtra("pdf");
         mSelectedDatePdfName += ".pdf";
 
-        Log.e(TAG, "onCreate: Pdf Name Will be : "+mSelectedDatePdfName);
+
+        // Pdf name to show on toolbar ePaper dd_mm_yyyy
+        pdfName = getIntent().getStringExtra("pdf");
+        pdfName = "ePaper\t"+pdfName;
 
 
-        // Url of ePaper Pdf
+        // Url of ePaper Pdf download
 
         mPdfUrl = "http://paper.enavamaratha.com/images/";
         mUrlSlash = "/";
 
-        //  ReadPdfFromAsset(SAMPLE_FILE);
 
+    }
+
+
+    private void StoragePermissionDeniedView()
+    {
+        initView();
+        pdfView.setVisibility(View.GONE);
+        RelDeniedLayout.setVisibility(View.VISIBLE);
+        btnSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSettings();
+            }
+        });
+    }
+
+
+
+
+
+    private void ReadEPaper()
+    {
 
 
         // Check internet Connection
@@ -95,11 +258,10 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
 
             // Check file is Exists or not
             // If Exists then show from sd card
-
-            Log.e(TAG, "onCreate: PDF FILE -----  "+getPdfFilePath());
             if (getPdfFilePath().exists())
             {
-                Log.e(TAG, "onCreate: File is Exist in Internet Connection then Show ------ ");
+
+                ReadPdfFromFile(getPdfFilePath());
 
             }
 
@@ -107,15 +269,11 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
             else
             {
 
-                Log.e(TAG, "onCreate: File Not Exists then Download ------------------");
-                // Url for Exists or not : http://paper.enavamaratha.com/images/yyyy/mm/dd/dd_mm_yyyy.pdf.
+                // Url is Exists or not on server : http://paper.enavamaratha.com/images/yyyy/mm/dd/dd_mm_yyyy.pdf.
 
                 mePaperPdfUrl = mPdfUrl+mSelectedDate+mUrlSlash+mSelectedDatePdfName.trim();
 
-                Log.e(TAG, "onCreate: Pdf Url ------------ "+mePaperPdfUrl);
-
-
-                 new  CheckUrlIsExists().execute(mePaperPdfUrl);
+                new  CheckUrlIsExists().execute(mePaperPdfUrl);
 
 
             }
@@ -132,7 +290,7 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
             if (getPdfFilePath().exists())
             {
 
-                Log.e(TAG, "onCreate: No Internet File And  is EXITSSSS  ");
+                ReadPdfFromFile(getPdfFilePath());
 
 
             }
@@ -146,7 +304,6 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
 
 
         }
-
 
     }
 
@@ -190,6 +347,17 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
 
 
 
+    // For Permissions go to Settings---
+    private  void openSettings(){
+        Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + getApplicationContext().getPackageName()));
+        myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+        myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(myAppSettings);
+        finish();
+    }
+
+
     /**
      * Background Async Task to download Selected Date ePaper Pdf file
      */
@@ -223,18 +391,16 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
                 // download the file
                 InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
-               /* String path = Environment.getExternalStorageDirectory() + "/" + "NavaMaratha";
+                String path = Environment.getExternalStorageDirectory() + "/" + "NavaMaratha/";
                 File fo = new File(path);
                 if (!fo.exists()) {
                     fo.mkdirs();
                 }
                 // Output stream
 
-                File newFile = new File(path, mSelectedDatePdfName);*/
+                File newFile = new File(path, mSelectedDatePdfName);
 
-                //if (!newFile.exists()) {
-
-                OutputStream output = new FileOutputStream(getPdfFilePath());
+                OutputStream output = new FileOutputStream(newFile);
 
                 byte data[] = new byte[1024];
 
@@ -283,16 +449,7 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
             dismissDialog(progress_bar_type);
 
 
-            Log.e(TAG, "onPostExecute: File downloaded Sucessfullyy...."+file_url);
-
-
-            Log.e(TAG, "onPostExecute: Read file from path --------- "+getPdfFilePath());
-
-            //ReadPdfFromFile(getPdfFilePath());
-
-
-
-
+            ReadPdfFromFile(getPdfFilePath());
 
         }
 
@@ -347,7 +504,7 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
     private File getPdfFilePath()
     {
         // Path for saving ePaper Pdf in SD Card
-        String path = Environment.getExternalStorageDirectory() + "/" + "NavaMaratha";
+        String path = Environment.getExternalStorageDirectory() + "/" + "NavaMaratha/";
         File fo = new File(path);
         if (!fo.exists()) {
             fo.mkdirs();
@@ -393,18 +550,11 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
             progressDialog.dismiss();
             if (bResponse)
             {
-                Log.e(TAG, "onPostExecute: Url is Exists Then Download------------- "+bResponse);
-                Toast.makeText(EpaperPdfActivity.this, "File exists!", Toast.LENGTH_SHORT).show();
-
-                Log.e(TAG, "onPostExecute: Pdf Url ----- To Downlaod ---- "+mePaperPdfUrl);
-
                 new DownloadFileFromURL().execute(mePaperPdfUrl);
             }
             else
             {
-                Log.e(TAG, "onPostExecute: Url is Not Exists ------------- "+bResponse);
-               // Toast.makeText(EpaperPdfActivity.this, "File does not exist!", Toast.LENGTH_SHORT).show();
-                showAlertDialog(EpaperPdfActivity.this, "ePaper Not Avaliable", "ePaper Not Avaliable Yet..Please Try Again Later ", false);
+                showAlertDialog(EpaperPdfActivity.this, "ePaper Not Available", "ePaper Not Available Yet..Please Try Again Later ", false);
             }
         }
     }

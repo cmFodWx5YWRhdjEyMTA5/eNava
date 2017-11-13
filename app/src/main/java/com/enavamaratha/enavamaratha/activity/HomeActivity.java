@@ -1,6 +1,7 @@
 
 package  com.enavamaratha.enavamaratha.activity;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -21,6 +22,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
@@ -52,6 +54,11 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.melnykov.fab.FloatingActionButton;
 
 import  com.enavamaratha.enavamaratha.Constants;
@@ -87,6 +94,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
@@ -183,6 +191,74 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         // Footer Advertise Code
         FOOTER_DELAY = 5000;
         footer_url = "https://dummyimage.com/320x50/5fada1/0011ff.jpg&text=SAMPLE+";
+
+
+
+
+
+        /*
+        *
+        * Dexter.checkPermissions(new MultiplePermissionsListener() {
+                    @Override public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        List<String> grantedPermissions = new ArrayList<String>();
+                        for(PermissionGrantedResponse response: report.getGrantedPermissionResponses()){
+                            if(!grantedPermissions.contains(response.getPermissionName())){
+                                grantedPermissions.add(response.getPermissionName());
+                            }
+                        }
+                        Toast.makeText(getApplicationContext(), "Granted permissions:"+grantedPermissions.toString(), Toast.LENGTH_LONG).show();
+                    }
+                    @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }, Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS, Manifest.permission.RECORD_AUDIO);
+            }
+        });
+        * */
+
+
+        // Mutiple Runtime Permission
+        // using Gradle/library for Multiple Runtime permission
+        // ---- https://github.com/Karumi/Dexter
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+
+            Dexter.withActivity(this)
+                    .withPermissions(
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_CONTACTS,
+                            Manifest.permission.CALL_PHONE,
+                            Manifest.permission.SEND_SMS
+                            )
+                    .withListener(new MultiplePermissionsListener() {
+                        @Override
+                        public void onPermissionsChecked(MultiplePermissionsReport report) {
+
+
+                        }
+
+                        @Override
+                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+
+                            token.continuePermissionRequest();
+
+
+                        }
+                    }).check();
+        }
+
+
+       /* Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.SEND_SMS,
+                        Manifest.permission.CALL_PHONE
+                ).withListener(new MultiplePermissionsListener() {
+            @Override public void onPermissionsChecked(MultiplePermissionsReport report) {*//* ... *//*}
+            @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {*//* ... *//*}
+        }).check();*/
+
 
 
         if (cd.isConnectingToInternet(getApplicationContext()))

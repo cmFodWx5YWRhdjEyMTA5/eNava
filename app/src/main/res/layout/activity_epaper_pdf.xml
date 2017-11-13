@@ -13,7 +13,36 @@
 <com.github.barteksc.pdfviewer.PDFView
     android:id="@+id/pdfView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_height="match_parent"
+    />
+
+    <RelativeLayout
+        android:id="@+id/RelDenied"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/txtDenied"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Storage permission is needed for ePaper.\n Please enable from settings"
+            android:gravity="center"
+            android:textColor="#000"
+            android:textSize="15sp"/>
+
+        <Button
+            android:id="@+id/btnSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/txtDenied"
+            android:layout_margin="10dp"
+            android:text="Go To Settings"
+            android:layout_centerHorizontal="true"
+            />
+
+    </RelativeLayout>
+
 
 
 </LinearLayout>
