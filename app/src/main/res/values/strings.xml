@@ -341,8 +341,19 @@
     <string name="btn_delete">Delete</string>
     <string name="empty_list_text">No Notifications</string>
     <string name="enter_desc">Currency</string>
-    <string name="banner_ad_unit_id">ca-app-pub-4094279933655114/4211644588</string>
-    <string name="inter_ad_unit">ca-app-pub-4094279933655114/4969391782</string>
 
+
+    <!--Alert Message Heading-->
+    <string name="no_internet">No Internet Connection</string>
+    <string name="slow_internet">Slow Internet Connection</string>
+    <string name="epaper_not">ePaper Not Available</string>
+    <string name="cancel_download">Cancel Download</string>
+
+
+    <!--Alert Messages-->
+    <string name="no_internet_msg">You don\'t have internet connection..Please try again later.</string>
+    <string name="slow_internet_msg">You have slow internet connection..Please try again later. </string>
+    <string name="epaper_not_msg">ePaper Not Available Yet..Please try again later. </string>
+    <string name="cancel_dn_msg">Cancel downloading ePaper.</string>
 
 </resources>

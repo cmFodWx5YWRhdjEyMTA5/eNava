@@ -65,7 +65,7 @@ public class Game extends AppCompatActivity {
             isOrientationEnabled = Settings.System.getInt(getContentResolver(),
                     Settings.System.ACCELEROMETER_ROTATION) == 1;
         } catch (Settings.SettingNotFoundException e) {
-            Log.d(MAIN_ACTIVITY_TAG, "Settings could not be loaded");
+
         }
 
         // If rotation isn't locked and it's a LARGE screen then add orientation changes based on sensor

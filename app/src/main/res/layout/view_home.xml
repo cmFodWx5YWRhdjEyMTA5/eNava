@@ -8,29 +8,35 @@
     tools:showIn="@layout/activity_home"
     android:weightSum="1">
 
+
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/homrelative">
-        <include layout="@layout/view_toolbar_main"
+        android:layout_height="wrap_content">
+
+        <include
+            layout="@layout/view_toolbar_main"
             android:id="@+id/include" />
 
-         <ImageView
-             android:id="@+id/imgLeftAd"
-             android:layout_width="65dp"
-             android:layout_height="80dp"
-             android:layout_alignParentLeft="true"
-             />
         <ImageView
-            android:id="@+id/imgRighttAd"
-            android:layout_width="65dp"
+            android:id="@+id/img_ad_Left"
+            android:layout_width="50dp"
             android:layout_height="80dp"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentLeft="true"
+            android:layout_margin="5dp"
 
             />
 
-          </RelativeLayout>
 
+        <ImageView
+            android:id="@+id/img_ad_Right"
+            android:layout_width="50dp"
+            android:layout_height="80dp"
+            android:layout_margin="5dp"
+
+            android:layout_alignParentRight="true" />
+
+
+    </RelativeLayout>
 
 
     <include layout="@layout/view_toolbar"/>
@@ -93,14 +99,14 @@
         ads:adSize="BANNER"
         ads:adUnitId="@string/banner_ad_unit_id">
     </com.google.android.gms.ads.AdView>-->
-    <ImageView
+    <!--<ImageView
         android:id="@+id/imgAdvertise"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
 
         />
-
+-->
 
 
 

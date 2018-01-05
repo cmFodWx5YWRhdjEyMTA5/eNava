@@ -70,7 +70,6 @@ import  com.enavamaratha.enavamaratha.view.TouchImageView;
 
 public class Epaper extends AppCompatActivity  {
 
-    private final String TAG = "Archieve Paper";
     public Context context;
 
     //public ImagePagerAdapter mAdapter;
@@ -80,17 +79,13 @@ public class Epaper extends AppCompatActivity  {
     private String selectdate;
     public boolean getval;
     SQLiteDatabase db;
-    private int mProgressStatus = 0;
 
     int finalc,countc = 0;
 
-    // flag for Internet connection status
-    Boolean isInternetPresent = false;
     DetailOnPageChangeListener listener;
     // Connection detector class
     ConnectionDetector cd;
 
-    boolean success = false;
 
     private ViewPager pager;
     TouchImageView imageView;
@@ -168,20 +163,20 @@ public class Epaper extends AppCompatActivity  {
                             finalc++;
                             finalcount = finalc;
 
-                          //  Log.i("Value Of Boolean count", "" + finalcount + "Value of finalc" + finalc);
+
 
                             // if paper not upload
                             if (finalcount == 0)
                             {
-                              //  Log.i("If Final count", "final count is Zero means no paper uploded yet");
-                                showAlertDialog(Epaper.this, "ePaper Not Avaliable", "ePaper Not Avaliable Yet..Please Try Again Later ", false);
+
+                                showAlertDialog(Epaper.this, getResources().getString(R.string.epaper_not), getResources().getString(R.string.epaper_not_msg), false);
                             }
 
                             // if upload
                             else {
 
                                 db.execSQL("create table if not exists mytable1(id integer primary key autoincrement, time varchar , totalurl integer)");
-                              //  Log.i(TAG, "Create Table in  archieve paper");
+
 
                                 Cursor c = db.rawQuery("select * from mytable1 where time  ='" + selectdate + "'", null);
 
@@ -195,19 +190,13 @@ public class Epaper extends AppCompatActivity  {
                                     String gatedate = c.getString(c.getColumnIndex("time"));
                                     int gatecount = c.getInt(c.getColumnIndex("totalurl"));
 
-                                  //  System.out.println("Id of selected date is" + _id);
-                                    //System.out.println("seletced Date in  database is " + gatedate);
-                                    //System.out.println("seletced Date have no  " + gatecount);
 
                                     ContentValues args = new ContentValues();
                                     args.put("totalurl", finalcount);
-                                    int updatev = db.update("mytable1", args, ROWID + "=" + _id, null);
-                                    //Log.i("Updated Value is :", "" + updatev);
+                                    db.update("mytable1", args, ROWID + "=" + _id, null);
 
-                                  //  System.out.println("Updated Value is :" + updatev);
+                                    c.getInt(c.getColumnIndex("totalurl"));
 
-                                    int gat = c.getInt(c.getColumnIndex("totalurl"));
-                                   // System.out.println("seletced Date have no  " + gat);
                                 }
 
                                 // else insert that values in database
@@ -215,7 +204,7 @@ public class Epaper extends AppCompatActivity  {
                                 {
                                     db.execSQL("INSERT INTO mytable1 (time,totalurl)VALUES ( '" + selectdate + "', '" + finalcount + "')");
 
-                                    //Log.i(TAG, "INSERT into DATABASE Values " + selectdate + "TotalPage:" + finalcount);
+
                                 }
                                 // insert urls in arraylist
                                 urls = new ArrayList<String>();
@@ -223,19 +212,19 @@ public class Epaper extends AppCompatActivity  {
                                 {
                                     String finalurl = url + selectdate + zero + i + exten.trim();
                                     urls.add(finalurl);
-                                   // System.out.println("" + urls);
+
                                 }
 
                                 //Converting arraylist to array of string
                                 String[] images = new String[urls.size()];
                                 images = urls.toArray(images);
-                              //  System.out.println("" + images);
 
-                                 adapter= new ImagePagerAdapter(images);
+
+                                adapter = new ImagePagerAdapter(images);
 
                                  pager.setAdapter(adapter);
                                 listener = new DetailOnPageChangeListener();
-                                //Log.i(TAG, "set Adapter");
+
 
                                 CirclePageIndicator indicator = (CirclePageIndicator) findViewById(R.id.indicator);
 
@@ -258,11 +247,11 @@ public class Epaper extends AppCompatActivity  {
                         {
                             count++;
                             countc = count;
-                            //Log.i("No Value", "No Urls Are False" + count);
+
                             if (countc == 15  )
                             {
-                                //Log.i("If Final count", "final count is Zero means no paper uploded yet");
-                                showAlertDialog(Epaper.this, "ePaper Not Avaliable", "ePaper Not Avaliable Yet..Please Try Again Later ", false);
+
+                                showAlertDialog(Epaper.this, getResources().getString(R.string.epaper_not), getResources().getString(R.string.epaper_not_msg), false);
                             }
                         }
 
@@ -298,26 +287,23 @@ public class Epaper extends AppCompatActivity  {
                 if (c != null && c.getCount() > 0) {
                     c.moveToFirst();
                     //PID Found
-                  //  System.out.println("Getting Value from database");
+
 
                     String getdate = c.getString(c.getColumnIndex("time"));
                     int getcount = c.getInt(c.getColumnIndex("totalurl"));
-
-                  //  System.out.println("seletced Date in  database is match" + getdate);
-                  //  System.out.println("seletced Date have no of ulrs " + getcount);
 
 
                     urls = new ArrayList<String>();
                     for (int i = 1; i <= getcount; i++) {
                         String finalurl = url + selectdate + zero + i + exten.trim();
                         urls.add(finalurl);
-                      //  System.out.println("" + urls);
+
                     }
 
                     //Converting arraylist to array of string
                     String[] images = new String[urls.size()];
                     images = urls.toArray(images);
-                  //  System.out.println("" + images);
+
 
                     pager.setAdapter(new ImagePagerAdapter(images));
 
@@ -341,84 +327,16 @@ public class Epaper extends AppCompatActivity  {
 
                 {
 
-                    showAlertDialog(Epaper.this, "No Internet Connection", "You don't have internet connection..Please Try Again Later. ", false);
+                    showAlertDialog(Epaper.this, getResources().getString(R.string.no_internet), getResources().getString(R.string.no_internet_msg), false);
                 }
             }
 
             // value not in database
             else
             {
-                showAlertDialog(Epaper.this, "No Internet Connection", "You don't have internet connection..Please Try Again Later. ", false);
+                showAlertDialog(Epaper.this, getResources().getString(R.string.no_internet), getResources().getString(R.string.no_internet_msg), false);
             }
         }
-	 	/*check
-		 * http:///paper.enavamaratha.com/images/selecteddate/page no.
-		 *
-		 * is avaliable or not in server
-		 * if avaliable then add count by 1
-		 * else
-		 * do nothing
-		 */
-	/*	for(int i=1;i<=15;i++)
-	   {
-			String URLName=url+selectdate+zero+i+exten.trim();
-		    MyTask task = new MyTask();
-	       task.execute(URLName);
-		    try {
-	        	 // get boolean value to check url is exist or on server
-				Boolean value=task.get();
-
-				if (value==true)
-				{
-					finalcount++;
-					Log.i("Value Of Boolean count", ""+finalcount);
-				}
-				else
-				{
-					Log.i("No Value","No Urls Are False");
-				}
-			} catch (InterruptedException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	   }
-
-
-
-         db= openOrCreateDatabase("MyMb", MODE_PRIVATE, null);
-	     db.execSQL("create table if not exists mytable1(id integer primary key autoincrement, time varchar , totalurl integer)");
-		 Log.i(TAG,"Create Table");
-
-	   db.execSQL("INSERT INTO mytable1 (time,totalurl)VALUES ( '"+selectdate+"', '"+finalcount+"')");
-
-	   Log.i(TAG,"INSERT into DATABASE Values "+selectdate+finalcount); */
-
-        // Add that urls in arraylist
-
-		   /*  urls= new ArrayList<String>	();
-		    for (int i = 1; i <= finalcount; i++)
-	        {
-		    String finalurl=url+selectdate+zero+i+exten.trim();
-	      	urls.add(finalurl);
-	        System.out.println(""+urls);
-	       }
-
-		    //Converting arraylist to array of string
-            String [] images = new String[urls.size()];
-            images = urls.toArray(images);
-         	System.out.println(""+images);
-
-			   ViewPager pager = (ViewPager) findViewById(R.id.archpager);
-	      	   pager.setAdapter(new ImagePagerAdapter(images));
-	    	  listener = new DetailOnPageChangeListener();
-		       Log.i(TAG, "set Adapter");*/
-
-
     }
 
 
@@ -486,31 +404,6 @@ public class Epaper extends AppCompatActivity  {
             AlertDialog dialog = builder.create();
             // display dialog
             dialog.show();
-        /*AlertDialog.Builder alertDialog = new AlertDialog.Builder(context).create();
-
-        // Setting Dialog Title
-        alertDialog.setTitle(title);
-
-        // Setting Dialog Message
-        alertDialog.setMessage(message);
-
-        // Setting alert dialog icon
-        alertDialog.setIcon((status) ?R.drawable.ic_error_outline : R.drawable.ic_error_outline );
-
-        // Setting OK Button
-
-       *//* alertDialog.setButton("OK", new DialogInterface.OnClickListener()
-        {
-            public void onClick(DialogInterface dialog, int which) {
-                Intent i = new Intent(context, HomeActivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                i.putExtra("home","home");
-                context.startActivity(i);
-            }
-        });*//*
-
-        // Showing Alert Message
-        alertDialog.show();*/
     }
 
 
@@ -580,7 +473,7 @@ public class Epaper extends AppCompatActivity  {
                con.setRequestMethod("HEAD");
                con.setConnectTimeout(6000);
                con.connect();
-              // System.out.println(con.getResponseCode());
+
 
                // if url in server then true
                if(con.getResponseCode() == HttpURLConnection.HTTP_OK)
@@ -588,14 +481,11 @@ public class Epaper extends AppCompatActivity  {
                    //System.out.println(con.getResponseCode());
                    return true;
                }
-             //  return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
 
                // else return false
                else
                {
-                   //System.out.println(con.getResponseCode());
-                  //  MyTask.this.cancel(true);
-                   //finish();
+
                    pDialog.dismiss();
                   return false;
                   // return false;
@@ -647,7 +537,7 @@ public class Epaper extends AppCompatActivity  {
                 this.pDialog = null;
             }
 
-          //  Log.d("Hi", "Done Downloading.");
+
         }
 
         }
@@ -666,10 +556,10 @@ public class Epaper extends AppCompatActivity  {
         {
               currentPage = position;
               int pageno=currentPage+1;
-          //  textView.setText((arg0+1)+" of "+ images.size());
+
             // set page number to textview
              txtpagno.setText(pageno+" of "+urls.size());
-             //  Toast.makeText(Epaper.this, "Page no:"+pageno,Toast.LENGTH_SHORT).show();
+
 
         }
 
@@ -732,13 +622,6 @@ public class Epaper extends AppCompatActivity  {
             //final ImageView imageView = (ImageView) imageLayout.findViewById(R.id.imageView1);
             final int  pos=position;
 
-            /*
-            OkHttpClient okHttpClient = new OkHttpClient();
-            File customCacheDirectory = new File(Environment.getExternalStorageDirectory().getAbsoluteFile() + "/MyCache");
-            okHttpClient.setCache(new Cache(customCacheDirectory, Integer.MAX_VALUE));
-            OkHttpDownloader okHttpDownloader = new OkHttpDownloader(okHttpClient);
-            Picasso picasso = new Picasso.Builder(mainActivity).downloader(okHttpDownloader).build();
-            picasso.load(imageURL).into(viewHolder.image);*/
 
 
 
@@ -771,8 +654,6 @@ public class Epaper extends AppCompatActivity  {
                                      public void onError() {
 
 
-                                       //  Log.i("Picasso", "Could not fetch image");
-                                         // Toast.makeText(Archieve.this, "Please Chcek Your Internet Connection or Try Again Later",Toast.LENGTH_SHORT).show();
                                      }
                                  });
                      }
@@ -833,18 +714,10 @@ public class Epaper extends AppCompatActivity  {
                 Bitmap bitmap;
                 OutputStream output;
                 int curr = pager.getCurrentItem();
-            //  BitmapDrawable btmpDr = (BitmapDrawable)imageView.getDrawable();
-             // bitma = btmpDr.getBitmap();
-
 
                 ImageView Imgv = (ImageView)pager.findViewWithTag(pager.getCurrentItem());
                 BitmapDrawable btmpDr = (BitmapDrawable)Imgv.getDrawable();
                 bitmap = btmpDr.getBitmap();
-
-               // Imgv.setDrawingCacheEnabled(true);
-
-              //  Bitmap bitmap=Imgv.getDrawingCache();
-
 
 
                 File filepath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);

@@ -13,6 +13,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,11 +27,11 @@ import android.widget.Toast;
 import com.enavamaratha.enavamaratha.Constants;
 import com.enavamaratha.enavamaratha.R;
 
+import com.enavamaratha.enavamaratha.adapter.NotificationAdapter;
 import com.enavamaratha.enavamaratha.provider.FeedData;
 import com.enavamaratha.enavamaratha.service.ConnectionDetector;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
+import com.enavamaratha.enavamaratha.utils.GetePaperUrlDateFormat;
+
 
 public class GcmNotification extends AppCompatActivity {
 
@@ -40,6 +41,7 @@ public class GcmNotification extends AppCompatActivity {
     ImageView ads,ads1;
 
     public SimpleCursorAdapter adapter;
+    private NotificationAdapter mAdapter;
 
     private DatabaseHelper dbHelper;
     private com.enavamaratha.enavamaratha.provider.DatabaseHelper DBHelper;
@@ -47,9 +49,6 @@ public class GcmNotification extends AppCompatActivity {
     private Context context;
     private SQLiteDatabase database;
     private SQLiteDatabase datab;
-
-    private AdView sAdview,sAdview_right;
-    ConnectionDetector cd;
 
 
     final String[] from = new String[]{DatabaseHelper._ID,
@@ -61,6 +60,7 @@ public class GcmNotification extends AppCompatActivity {
     int idt;
     String url;
     String urltype;
+    private Cursor cursor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,92 +72,8 @@ public class GcmNotification extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        dbManager = new DBManager(this);
-        dbManager.open();
-        final Cursor cursor = dbManager.fetch();
 
-        context = getApplicationContext();
-        // for get data from FeedEx.Db
-        DBHelper = new com.enavamaratha.enavamaratha.provider.DatabaseHelper(new Handler(), getApplicationContext());
-        datab = DBHelper.getWritableDatabase();
-
-        // get Data from notification
-        dbHelper = new DatabaseHelper(context);
-        database = dbHelper.getWritableDatabase();
-
-
-
-        listView = (ListView) findViewById(R.id.list_view);
-        listView.setEmptyView(findViewById(R.id.empty));
-
-        adapter = new SimpleCursorAdapter(this, R.layout.activity_gcmnotification, cursor, from, to, 0);
-        adapter.notifyDataSetChanged();
-
-        listView.setAdapter(adapter);
-         urltype = getIntent().getStringExtra("UrlType");
-         url = getIntent().getStringExtra("url");
-
-       /* // smal ads on left side
-        RelativeLayout smallad=(RelativeLayout)findViewById(R.id.smallad_left);
-        sAdview = new AdView(getApplicationContext());
-        AdSize smallsize = new AdSize(50,50);
-        sAdview.setAdSize(smallsize);
-        sAdview.setAdUnitId("ca-app-pub-4094279933655114/3492658587");
-        smallad.addView(sAdview);
-        AdRequest adre=new AdRequest.Builder().build();
-        sAdview.loadAd(adre);
-
-        // small ads on right side
-        RelativeLayout smallad_right=(RelativeLayout)findViewById(R.id.smallad_right);
-        sAdview_right = new AdView(getApplicationContext());
-        AdSize smalls = new AdSize(50,50);
-        sAdview_right.setAdSize(smalls);
-        sAdview_right.setAdUnitId("ca-app-pub-4094279933655114/2015925381");
-        smallad_right.addView(sAdview_right);
-        AdRequest adreq=new AdRequest.Builder().build();
-        sAdview_right.loadAd(adreq);*/
-
-
-      /*  if(url!= null)
-        {
-            if (url.contains("."))
-            {
-                if (urltype.contains("Web"))
-                {
-                    Intent i = new Intent(this, PollActivity.class);
-                    i.putExtra("poll", "Web");
-                    i.putExtra("Notification", url);
-                    startActivity(i);
-
-                }
-
-                else if (urltype.contains("App"))
-                {
-
-                    Intent i = new Intent(this, HomeActivity.class);
-                    i.putExtra("Notification", url);
-                    startActivity(i);
-
-
-                    // get post id and check in databsae from that there entry id
-                }
-            }
-        }
-
-
-
-        else
-        {
-               System.out.println("Current Actitivy");
-        }
-
-
-        for disable listitem click
-        if(listview.getChildAt(selectedPosition).isEnabled())
-{
-    listview.getChildAt(selectedPosition).setEnabled(false);
-}
-         */
+        initView();
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -203,15 +119,13 @@ public class GcmNotification extends AppCompatActivity {
                                     //convert string to long because our id is in long
                                     entryidd = Long.parseLong(re);
                                     entryy = entryidd;
-                                    System.out.println("Id  in Country List" + re);
-                                    System.out.println("Long Id  in Country List" + entryidd);
 
                                 } while (cursor.moveToNext());
 
                                 startActivity(new Intent(Intent.ACTION_VIEW, ContentUris.withAppendedId(mUr, entryy)));
                             }
 
-                            // else go to home activity
+
                             else
                             {
                                 // make clickable false
@@ -224,6 +138,32 @@ public class GcmNotification extends AppCompatActivity {
 
                         }
                     }
+
+                    // If Notification Urltype is Epaper it means on click That Download/View That Date ePaper
+
+                    else if (UrlType.contains("ePaper")) {
+
+
+                        if (Url != null) {
+
+                            GetePaperUrlDateFormat getDate = new GetePaperUrlDateFormat();
+
+                            // For ePaper Pdf files Activity
+                            Intent i = new Intent(GcmNotification.this, EpaperPdfActivity.class);
+                            i.putExtra("date", getDate.ePaperPdfUrl(Url));
+                            i.putExtra("pdf", getDate.ePaperPdfName(Url));
+                            startActivity(i);
+
+
+                        } else {
+                            // make clickable false
+                            if (listView.getChildAt(position).isEnabled()) {
+                                listView.getChildAt(position).setEnabled(false);
+                            }
+                        }
+
+
+                    }
                     // not web and not app then listview clickable make false
                     else {
 
@@ -231,11 +171,8 @@ public class GcmNotification extends AppCompatActivity {
                         {
                             listView.getChildAt(position).setEnabled(false);
                         }
-                        //  listView.getChildAt(position).setEnabled(false);
-                    }
-                   // System.out.println("Url in list item click" + Url);
-                    //System.out.println("UrlType in list item click" + UrlType);
 
+                    }
 
                 }
             }
@@ -282,7 +219,45 @@ public class GcmNotification extends AppCompatActivity {
             }
         });
 
-     //   database.close();
+
+
+    }
+
+
+    private void initView() {
+
+        context = getApplicationContext();
+
+
+        dbManager = new DBManager(this);
+        dbManager.open();
+        cursor = dbManager.fetch();
+
+
+        // for get data from FeedEx.Db
+        DBHelper = new com.enavamaratha.enavamaratha.provider.DatabaseHelper(new Handler(), getApplicationContext());
+        datab = DBHelper.getWritableDatabase();
+
+        // get Data from notification
+        dbHelper = new DatabaseHelper(context);
+        database = dbHelper.getWritableDatabase();
+
+
+        listView = (ListView) findViewById(R.id.list_view);
+        listView.setEmptyView(findViewById(R.id.empty));
+
+
+        mAdapter = new NotificationAdapter(context, cursor);
+        listView.setAdapter(mAdapter);
+        mAdapter.notifyDataSetChanged();
+
+       /* adapter = new SimpleCursorAdapter(this, R.layout.activity_gcmnotification, cursor, from, to, 0);
+        adapter.notifyDataSetChanged();
+
+        listView.setAdapter(adapter);*/
+        urltype = getIntent().getStringExtra("UrlType");
+        url = getIntent().getStringExtra("url");
+
 
     }
 
@@ -292,41 +267,11 @@ public class GcmNotification extends AppCompatActivity {
 
         super.onResume();
 
-       /* if( sAdview!= null ||  sAdview_right!= null)
-        {
-
-            sAdview.resume();
-            sAdview_right.resume();
-        }
-
-        //Show the AdView if the data connection is available
-
-        if(cd.isConnectingToInternet(getApplicationContext()))
-        {
-
-            sAdview.setVisibility(View.VISIBLE);
-            sAdview_right.setVisibility(View.VISIBLE);
-
-
-        }
-
-
-        sAdview.resume();
-        sAdview_right.resume();*/
 
     }
 
     @Override
     protected void onPause() {
-
-
-     /*   if(sAdview!=null ||  sAdview_right!=null)
-        {
-
-            sAdview.pause();
-            sAdview_right.pause();
-        }
-*/
 
         super.onPause();
     }
@@ -334,15 +279,6 @@ public class GcmNotification extends AppCompatActivity {
     @Override
     protected void onDestroy()
     {
-
-        /*if( sAdview!=null ||  sAdview_right!=null)
-        {
-
-            sAdview.destroy();
-            sAdview_right.destroy();
-        }
-*/
-
 
         super.onDestroy();
     }
@@ -428,10 +364,8 @@ public class GcmNotification extends AppCompatActivity {
 
         } else
         {
-            Toast.makeText(this, "No Notificatoin", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "No Notification", Toast.LENGTH_LONG).show();
         }
-     //   c.close();
-       // database.close();
 
     }
 

@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.enavamaratha.enavamaratha"
-    android:installLocation="auto"
-    android:versionCode="10"
-    android:versionName="1.0.10">
+    android:installLocation="auto">
 
-    <uses-sdk
-        android:maxSdkVersion="23"
-        android:minSdkVersion="15" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -23,24 +18,11 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CALL_PHONE"/>
-
-    <permission
-        android:name="com.enavamaratha.enavamaratha.permission.C2D_MESSAGE"
-        android:protectionLevel="signature" />
-
-    <uses-permission android:name="com.enavamaratha.enavamaratha.permission.C2D_MESSAGE" />
-    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-
-    <permission
-        android:name="com.enavamaratha.enavamaratha.provider.WRITE_PERMISSION"
-        android:protectionLevel="signature" />
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
 
-    <meta-data
-        android:name="com.google.android.gms.version"
-        android:value="@integer/google_play_services_version" />
+
 
     <application
         android:name=".MainApplication"
@@ -107,41 +89,8 @@
             android:name=".activity.GeneralPrefsActivity"
             android:label="@string/settings"
             android:launchMode="singleTask" />
-        <activity android:name=".widget.WidgetConfigActivity">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
 
-        <receiver android:name=".widget.WidgetProvider">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
 
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widgetinfo" />
-        </receiver>
-        <receiver android:name=".widget.TickerWidgetProvider">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/tickerwidgetinfo" />
-        </receiver>
-
-        <service
-            android:name=".widget.WidgetService"
-            android:permission="android.permission.BIND_REMOTEVIEWS" />
-        <service android:name=".widget.TickerWidgetService" />
-
-        <receiver android:name=".receiver.BootCompletedBroadcastReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
         <receiver android:name=".receiver.ConnectionChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -152,20 +101,23 @@
         <activity
             android:name=".activity.Epaper"
             android:label="@string/app_name"
-            android:theme="@style/Theme.Light"></activity>
+            android:theme="@style/Theme.Light" />
+
+
         <activity
             android:name=".activity.Registration"
-            android:theme="@style/Theme.Light"></activity>
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/Theme.Light" />
         <activity
             android:name=".activity.Feedback"
-            android:label=""></activity>
+            android:label="" />
         <activity
             android:name=".activity.Expandable"
-            android:label=""></activity>
+            android:label="" />
         <activity
             android:name=".activity.Rate"
             android:label="@string/share"
-            android:theme="@style/Theme.Light"></activity>
+            android:theme="@style/Theme.Light" />
         <activity
             android:name=".activity.SpalashScreen"
             android:label="@string/app_name"
@@ -177,52 +129,76 @@
             </intent-filter>
         </activity>
 
+
         <!-- GCM Receiver -->
-        <receiver
-            android:name=".receiver.GcmBroadcastReceiver"
-            android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+        <!-- <receiver
+             android:name=".receiver.GcmBroadcastReceiver"
+             android:exported="true"
+             android:permission="com.google.android.c2dm.permission.SEND">
+             <intent-filter>
+                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <category android:name="com.enavamaratha.enavamaratha" />
-            </intent-filter>
-        </receiver>
+                 <category android:name="com.enavamaratha.enavamaratha" />
+             </intent-filter>
+         </receiver>
 
-        <!-- GCM Receiver Service -->
-        <service
-            android:name=".service.GCMIntentService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-            </intent-filter>
-        </service>
+         &lt;!&ndash; GCM Receiver Service &ndash;&gt;
+         <service
+             android:name=".service.GCMIntentService"
+             android:exported="false">
+             <intent-filter>
+                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+             </intent-filter>
+         </service>-->
 
         <!--
              [SNIPPET add_activity_config_changes]
             Include the AdActivity configChanges and theme.
             [START add_activity_config_changes]
         -->
-        <activity
-            android:name="com.google.android.gms.ads.AdActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
-            android:theme="@android:style/Theme.Translucent" />
+
         <!-- [END add_activity_config_changes] -->
         <activity
             android:name=".activity.ClearCache"
             android:label="@string/title_activity_clear_cache"
-            android:theme="@style/Theme.Light"></activity>
+            android:theme="@style/Theme.Light" />
         <activity
             android:name=".activity.PollActivity"
             android:label="@string/poll"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.Light"></activity>
+            android:theme="@style/Theme.Light" />
         <activity
             android:name=".activity.GcmNotification"
             android:label="@string/notifications" />
-        <activity android:name=".activity.Game"></activity>
-        <activity android:name=".activity.EpaperPdfActivity"></activity>
+        <activity android:name=".activity.Game" />
+        <activity
+            android:name=".activity.EpaperPdfActivity"
+            android:configChanges="orientation|screenSize" />
+
+
+        <!-- [START firebase_service] -->
+        <service android:name=".service.MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <!-- [END firebase_service] -->
+
+
+        <!-- [START firebase_iid_service] -->
+        <service android:name=".service.MyFirebaseInstanceServiceClass">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+
+        <!-- [END firebase_iid_service] -->
     </application>
 
 </manifest>

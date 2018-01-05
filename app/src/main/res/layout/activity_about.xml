@@ -5,35 +5,12 @@
               android:layout_height="match_parent"
               android:orientation="vertical">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/homrelative">
-        <include layout="@layout/view_toolbar_main"
+
+    <include
+        layout="@layout/view_toolbar_main"
             android:id="@+id/include" />
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/smallad_left"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
 
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:id="@+id/smallad_right"
-            ></RelativeLayout>
-
-
-
-    </RelativeLayout>
 
     <include layout="@layout/view_toolbar"/>
 

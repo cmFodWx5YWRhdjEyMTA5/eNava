@@ -67,7 +67,6 @@ import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Xml;
 import android.widget.Toast;
 
@@ -260,7 +259,6 @@ public class FetcherService extends IntentService {
 
 
                     int totalnum = cursor.getCount();
-                    Log.i("FetcherSErvice ","Total count For Feeds : "+totalnum);
                     titlepos = cursor.getColumnIndex(EntryColumns.TITLE);
                     mMainImgPos = cursor.getColumnIndex(EntryColumns.IMAGE_URL);
                     mGuidpos=cursor.getColumnIndex(EntryColumns.GUID);
@@ -274,10 +272,8 @@ public class FetcherService extends IntentService {
                             res = cursor.getString(titlepos);
                             guid = cursor.getString(mGuidpos);
 
-                            System.out.println("Title in Intent" + res);
+
                             String Imageuri = cursor.getString(mMainImgPos);
-                            System.out.println("Post Id" + guid);
-                            Log.i("FetecherService", "Count of feeds " + newCount);
 
                             ContentValues updatevalues = new ContentValues();
                             updatevalues.put(EntryColumns.FLAG, setflag);
@@ -300,15 +296,13 @@ public class FetcherService extends IntentService {
                                 // Notification intent for updated news to show
                                 Intent notificationIntent = new Intent(FetcherService.this, HomeActivity.class);
                                 notificationIntent.putExtra("url", guid);
-                               System.out.println("Id of entry" + guid);
-                                Log.i("FecherService ","Image Url for Notification : "+Imageuri);
 
                                 PendingIntent contentIntent = PendingIntent.getActivity(FetcherService.this, n, notificationIntent,
                                         PendingIntent.FLAG_UPDATE_CURRENT);
 
                                 Notification.Builder notifBuilder = new Notification.Builder(MainApplication.getContext()) //
                                         .setContentIntent(contentIntent) //
-                                        .setContentTitle("नवा मराठा")
+                                        .setContentTitle("ठळक बातम्या")
                                         .setSmallIcon(R.drawable.ic_statusbar_rss)
                                         .setLargeIcon(bitmap)
                                         .setContentText(res)

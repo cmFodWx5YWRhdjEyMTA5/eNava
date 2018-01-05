@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
@@ -216,55 +215,8 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
             mListView.addHeaderView(header);
         }
 
-
-
-
-        /*mListView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-                int topRowVerticalPosition =
-                        (mListView == null || mListView.getChildCount() == 0) ? 0 : mListView.getChildAt(0).getTop();
-               swipe.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
-            }
-        });*/
-
-
-
-      /*  mPullRefresh.setOnRefreshListener(new PullToRefreshView.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                mPullRefresh.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPullRefresh.setRefreshing(false);
-                    }
-                },REFRESH_DELAY);
-            }
-        })*/;
-
-
-
-
-
         UiUtils.addEmptyFooterView(mListView, 50);
 
-
-
-      /*  mHideReadButton = (FloatingActionButton) rootView.findViewById(R.id.hide_read_button);
-      mHideReadButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                UiUtils.displayHideReadButtonAction(mListView.getContext());
-                return true;
-            }
-        });
-        UiUtils.updateHideReadButton(mHideReadButton);*/
 
         mSearchView = (SearchView) rootView.findViewById(R.id.searchView);
         mSearchView.setQueryHint("Type Search Text Here...");
@@ -317,20 +269,6 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
     public void onRefresh() {
         startRefresh();
     }
-    /*@Override
-    public void onRefresh() {
-        startRefresh();
-    }
-
-    @Override
-    public void onPullDistance(int distance) {
-
-    }
-
-    @Override
-    public void onPullEnable(boolean enable) {
-
-    }*/
 
     public void onClickHideRead(View view) {
         if (!PrefUtils.getBoolean(PrefUtils.SHOW_READ, true)) {
@@ -344,8 +282,7 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
     public void onListItemClick(ListView listView, View view, int position, long id) {
         if (id >= 0) { // should not happen, but I had a crash with this on PlayStore...
             startActivity(new Intent(Intent.ACTION_VIEW, ContentUris.withAppendedId(mUri, id)));
-            System.out.println("Uri is of item click is" + mUri);
-            System.out.println("Id Of List item" + id);
+
         }
     }
 
@@ -461,13 +398,11 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
         {
             if (mUri != null && FeedDataContentProvider.URI_MATCHER.match(mUri) == FeedDataContentProvider.URI_ENTRIES_FOR_FEED)
             {
-                Log.i("EntriesListFragment","Calling mURI loop : "+mUri);
 
                 getActivity().startService(new Intent(getActivity(), FetcherService.class).setAction(FetcherService.ACTION_REFRESH_FEEDS).putExtra(Constants.FEED_ID,
                         mUri.getPathSegments().get(1)));
             } else
             {
-                Log.i("EntriesListFragment","Calling Without mUri Loop  : ");
                 getActivity().startService(new Intent(getActivity(), FetcherService.class).setAction(FetcherService.ACTION_REFRESH_FEEDS));
             }
         }

@@ -37,14 +37,12 @@ public class ClearCache extends AppCompatActivity
         String getintentvalue="myMethod";
 
         String simple=getIntent().getStringExtra("methodName");
-        Log.i("Intent in clear","Intent Value"+simple);
         if(getintentvalue.equals( getIntent().getStringExtra("methodName")))
         {
 
             if((isTableExists(mytable1)) == true)
             {
                db.execSQL("delete from mytable1");
-               // Log.i("Table is exists", "TAble is exist");
 
                 // update cache table with current date
                 final String ROWID = "id";
@@ -54,7 +52,6 @@ public class ClearCache extends AppCompatActivity
                 ContentValues args = new ContentValues();
                 args.put("time",currentDateandTime );
                 int updatev = db.update("cache", args, ROWID + "=" +1, null);
-               // Log.i("Updated Value is :", "" + updatev);
 
                 // call clear method
                 clear();
@@ -63,12 +60,9 @@ public class ClearCache extends AppCompatActivity
 
             else
             {
-                //Toast.makeText(context, "Your All Cache is clear", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(getApplicationContext(), GeneralPrefsActivity.class);
                 startActivity(i);
-                System.out.println("TAble is not exist");
 
-              //  Log.i("Table is Not exists","TAble not exist");
             }
         }
 
@@ -81,16 +75,12 @@ public class ClearCache extends AppCompatActivity
         if (cache.exists() && cache.isDirectory())
         {
             Date lastModDate = new Date(cache.lastModified());
-            Log.i("File last modified @ : ", lastModDate.toString());
-            System.out.println("File last modified @ : "+ lastModDate.toString());
+
             deleteDir(cache);
-            //  DELDir(cache);
-            // Toast.makeText(context, "Your All Cache is clear", Toast.LENGTH_SHORT).show();
 
 
         }
 
-       // Log.i("Setting", "cache directory" + cache);
         new AlertDialog.Builder(this)
             .setIcon(R.drawable.ic_error_outline)
             .setTitle("Cache Clear ")
@@ -113,40 +103,6 @@ public class ClearCache extends AppCompatActivity
 
 
     }
-
-
-
-/*    if(cacheDir.isDirectory())
-    {
-    File[] files=cacheDir.listFiles();
-
-    for(File file:files)
-    {
-        if(null != file)
-        {
-
-
-            long lastModified = file.lastModified();
-
-            if (0 < lastModified) {
-                Date lastMDate = new Date(lastModified);
-                Date today = new Date(System.currentTimeMillis());
-
-                if (null != lastMDate && null != today) {
-                    long diff = today.getTime() - lastMDate.getTime();
-                    long diffDays = diff / (24 * 60 * 60 * 1000);
-                    if (15 < diffDays)
-                    {
-                        file.delete();
-                    }
-                }
-            }
-
-        }
-    }
-}*/
-
-
 
 
     private boolean deleteDir(File dir)

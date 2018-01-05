@@ -1,54 +1,23 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#00AEEF"
-    android:scrollbarAlwaysDrawVerticalTrack="true"
-    >
+    android:scrollbarAlwaysDrawVerticalTrack="true">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:id="@+id/linearLayout">
+        android:id="@+id/linearLayoutf">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/homrelative">
+
             <include layout="@layout/view_toolbar_main"
                 android:id="@+id/include" />
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/smallad_left"
-                android:layout_centerVertical="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true">
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"
-                android:layout_alignParentEnd="true"
-                android:id="@+id/smallad_right"
-                ></RelativeLayout>
-
-
-
-        </RelativeLayout>
-
         <include
             layout="@layout/view_toolbar" />
     </LinearLayout>
-
-
-
-
 
     <ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -56,26 +25,25 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
         android:fillViewport="false"
-        android:id="@+id/scrollView2"
-        android:layout_below="@+id/linearLayout">
+        android:id="@+id/scrollView2f"
+        android:layout_below="@+id/linearLayoutf">
 
 
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        <RelativeLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
         android:background="#fff"
         android:elevation="4dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginRight="35dp"
-        android:layout_marginTop="2dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="5dp"
         android:layout_marginBottom="10dp"
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:id="@+id/relativeLayout"
-        android:layout_below="@+id/linearLayout"
-        android:layout_centerHorizontal="true">
+            android:padding="10dp"
+            android:id="@+id/llRelFeedback">
 
-        <LinearLayout
+
+            <LinearLayout
             android:id="@+id/login_form"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -86,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:background="@drawable/ic_attachment"
                 android:layout_height="wrap_content"
-                android:id="@+id/btnattach"
+                android:id="@+id/btnfattach"
                 android:layout_marginRight="10dp"
                 android:layout_gravity="right" />
 
@@ -95,14 +63,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:layout_marginBottom="2dp">
+                android:layout_marginBottom="2dp"
+                app:theme="@style/EditTextTheme">
 
                 <EditText
-                    android:id="@+id/edtemail"
-                    android:layout_width="fill_parent"
+                    android:id="@+id/edtfemail"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:singleLine="true"
+                    android:maxLines="1"
                     android:hint="नाव"
                     android:inputType="textPersonName" />
 
@@ -112,15 +81,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:layout_marginBottom="2dp">
+                android:layout_marginBottom="2dp"
+                app:theme="@style/EditTextTheme">
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/edtcontact"
+                    android:id="@+id/edtfcontact"
                     android:layout_below="@+id/login_form"
-                    android:inputType="phone"
+                    android:inputType="textPhonetic"
                     android:hint="मोबाईल नंबर"
-                    android:singleLine="true"
+                    android:maxLines="1"
+                    android:maxLength="10"
 
                     />
             </android.support.design.widget.TextInputLayout>
@@ -129,28 +100,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:layout_marginBottom="2dp">
+                android:layout_marginBottom="2dp"
+                app:theme="@style/EditTextTheme">
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/edtmsg"
+                    android:id="@+id/edtfmsg"
                     android:layout_below="@+id/login_form"
                     android:inputType="textMultiLine"
                     android:isScrollContainer="true"
                     android:hint="माहिती"
 
-
                     />
             </android.support.design.widget.TextInputLayout>
-
 
 
         </LinearLayout>
 
 
-        <LinearLayout
-
-            android:layout_width="fill_parent"
+            <LinearLayout
+                android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="15dp"
@@ -163,11 +132,11 @@
                     <Button
                         android:layout_width="50dp"
                         android:layout_height="wrap_content"
-                        android:id="@+id/btnemail"
+                        android:id="@+id/btnfemail"
                         android:layout_weight="1"
                         android:background="@drawable/feedback_button"
                         android:text="\neMail"
-                        android:layout_marginRight="6dp"
+
                         android:textColor="@color/red"
                         android:drawableTop="@drawable/ic_gmaill"
                         />
@@ -176,9 +145,8 @@
                         android:layout_width="60dp"
                         android:layout_height="wrap_content"
                        android:layout_gravity="center"
-                        android:id="@+id/btnsms"
+                        android:id="@+id/btnfsms"
                         android:layout_weight="1"
-                        android:layout_marginRight="6dp"
                         android:background="@drawable/feedback_button"
                         android:drawableTop="@drawable/ic_sms"
                         android:text="\nSMS"
@@ -193,7 +161,7 @@
                         android:text="\nWhatsApp"
                         android:background="@drawable/feedback_button"
                         android:textColor="@color/green"
-                        android:id="@+id/btnwhatsapp"
+                        android:id="@+id/btnfwhatsapp"
                        />
 
 </LinearLayout>
@@ -206,14 +174,16 @@
             android:layout_marginBottom="5dp"
             android:gravity="center"
             android:textIsSelectable="true"
-            android:id="@+id/textView2"
+            android:id="@+id/textfView2"
             android:text="WhatsApp No: 9080807070"
             android:layout_below="@+id/linearLayout2"
-            android:layout_centerHorizontal="true"
-             />
+            android:layout_centerHorizontal="true" />
 
 
     </RelativeLayout>
+
+
     </ScrollView>
+
 
 </RelativeLayout>

@@ -13,6 +13,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceGroup;
@@ -22,9 +23,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Log;
-
-import com.enavamaratha.enavamaratha.activity.ClearCache;
 import  com.enavamaratha.enavamaratha.MainApplication;
 import  com.enavamaratha.enavamaratha.R;
 import com.enavamaratha.enavamaratha.activity.GeneralPrefsActivity;
@@ -64,7 +62,7 @@ public class GeneralPrefsFragment extends PreferenceFragment {
         });
 
 
-        PreferenceScreen screen = getPreferenceScreen();
+        // Delete Saved Epapers
         PreferenceScreen prefer = (PreferenceScreen) findPreference("cacheclear");
         prefer.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -79,16 +77,19 @@ public class GeneralPrefsFragment extends PreferenceFragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
-                                // object fo ClearEaperCache class
+
+                                // For Pdf Delete Logic
+                                deleteEpapers();
+
+
+                                // Delete Epaper Cache Logic
+                             /*   // object fo ClearEaperCache class
                                 ClearEpaperCache object = new ClearEpaperCache();
 
                                 // delete is a method for delete
                                 object.Del();
                                 // positive button logic
-                               /* Intent i = new Intent(getContext(), HomeActivity.class);
-                                i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                i.putExtra("home", "home");
-                                context.startActivity(i);*/
+*/
                             }
                         });
 
@@ -96,10 +97,7 @@ public class GeneralPrefsFragment extends PreferenceFragment {
                     @Override
                     public void onCancel(DialogInterface dialog) {
                         dialog.dismiss();
-                       /* Intent i = new Intent(getContext(), HomeActivity.class);
-                        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        i.putExtra("home", "home");
-                        getContext().startActivity(i);*/
+
                     }
                 });
 
@@ -107,59 +105,10 @@ public class GeneralPrefsFragment extends PreferenceFragment {
                 AlertDialog dialog = builder.create();
                 // display dialog
                 dialog.show();
-                /*new AlertDialog.Builder(getActivity())
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setTitle("Delete All ePapers")
-                        .setMessage("Do you Really Want To Delete All Saved ePapers ... ?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which)
-                            {
-
-                                Intent i = new Intent(getActivity(), ClearCache.class);
-                                i.putExtra("methodName","myMethod");
-                                Log.i("Intent Value", "methodName");
-                                startActivity(i);
-                            }
-
-                        })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                            }
-
-                        })
-                        .show();
-*/
-
 
                 return true;
             }
         });
-
-
-
-
-
-
-      /* preference = findPreference(PrefUtils.LIGHT_THEME);
-
-        preference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                PrefUtils.putBoolean(PrefUtils.LIGHT_THEME, Boolean.TRUE.equals(newValue));
-
-                PreferenceManager.getDefaultSharedPreferences(MainApplication.getContext()).edit().commit(); // to be sure all prefs are written
-
-                android.os.Process.killProcess(android.os.Process.myPid()); // Restart the app
-
-                // this return statement will never be reached
-                return true;
-            }
-        });*/
 
 
     }
@@ -204,17 +153,16 @@ public class GeneralPrefsFragment extends PreferenceFragment {
             return context;
         }
 
-        public void Del()
+        private void Del()
        {
            mDatabase =  getActivity().openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
 
 
            // check table is exist or not
-           if((isTableExists(mytable1))==true)
+           if ((isTableExists(mytable1)))
 
            {
               mDatabase.execSQL("delete from mytable1");
-               Log.i("Table is exists", "TAble is exist");
 
                // update cache table with current date
                final String ROWID = "id";
@@ -224,28 +172,18 @@ public class GeneralPrefsFragment extends PreferenceFragment {
                // update date and time in table
                ContentValues args = new ContentValues();
                args.put("time", currentDateandTime);
-               int updatev = mDatabase.update("cache", args, ROWID + "=" + 1, null);
-               Log.i("Updated Value is :", "" + updatev);
+               mDatabase.update("cache", args, ROWID + "=" + 1, null);
 
                // call clear method for clear cache dirctory
                clear();
 
            }
 
-
-           else
-
-           {
-                    /*//Toast.makeText(context, "Your All Cache is clear", Toast.LENGTH_SHORT).show();
-                    Intent i = new Intent(getApplicationContext(), GeneralPrefsActivity.class);
-                    startActivity(i);
-                    System.out.println("TAble is not exist");*/
-
-                    Log.i("Table is Not exists","TAble not exist");
-           }
-
            mDatabase.close();
        }
+
+
+
 
 
 
@@ -257,9 +195,6 @@ public class GeneralPrefsFragment extends PreferenceFragment {
             if (cache.exists() && cache.isDirectory())
             {
                 Date lastModDate = new Date(cache.lastModified());
-                Log.i("File last modified @ : ", lastModDate.toString());
-                System.out.println("File last modified @ : " + lastModDate.toString());
-
                 // delete cache directory of epaper
                 deleteDir(cache);
                 //  DELDir(cache);
@@ -274,28 +209,6 @@ public class GeneralPrefsFragment extends PreferenceFragment {
             AlertDialog dialog = builder.create();
             // display dialog
             dialog.show();
-            /*Log.i("Setting", "cache directory" + cache);
-            new android.app.AlertDialog.Builder(this)
-                    .setIcon(R.drawable.ic_error_outline)
-                    .setTitle("Cache Clear")
-                    .setMessage(" All Saved ePapers Deleted")
-                    .setPositiveButton("Ok", new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            Intent i = new Intent(getApplicationContext(), GeneralPrefsActivity.class);
-                            startActivity(i);
-                        }
-
-                    })
-
-                    .show();
-
-
-
-
-*/
         }
 
 
@@ -340,5 +253,32 @@ public class GeneralPrefsFragment extends PreferenceFragment {
             return false;
         }
     }
+
+
+    private void deleteEpapers() {
+        String path = Environment.getExternalStorageDirectory() + "/" + "NavaMaratha/";
+
+        File directory = new File(path);
+
+        if (directory.exists()) {
+
+            File[] files = directory.listFiles();
+
+            for (int i = 0; i < files.length; i++) {
+                files[i].delete();
+            }
+
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("ePaper Clear");
+            builder.setMessage("All Saved ePapers Deleted");
+            AlertDialog dialog = builder.create();
+            // display dialog
+            dialog.show();
+
+
+        }
+    }
+
 }
 

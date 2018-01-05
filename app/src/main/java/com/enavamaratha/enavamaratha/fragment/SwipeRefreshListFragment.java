@@ -44,23 +44,6 @@ public abstract class SwipeRefreshListFragment extends ListFragment implements S
         return mRefreshLayout;
     }
 
-       /* mCircleRefreshLayout = new SwipeRefreshL(inflater.getContext()) {
-            @Override
-            public boolean canChildScrollUp() {
-                return mListView != null && mListView.getFirstVisiblePosition() != 0;
-            }
-        };
-        inflateView(inflater, mCircleRefreshLayout, savedInstanceState);
-
-        mListView = (ListView) mCircleRefreshLayout.findViewById(android.R.id.list);
-        if (mListView != null) {
-            // HACK to be able to know when we are on the top of the list (for the swipe refresh)
-            mListView.addHeaderView(new View(mListView.getContext()));
-        }
-
-        return mCircleRefreshLayout;
-    }*/
-
     abstract public View inflateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState);
 
     @Override

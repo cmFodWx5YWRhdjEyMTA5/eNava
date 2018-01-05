@@ -1,20 +1,22 @@
 EnavaMaratha 
 
-API KEy :
+Firebase Cloud Messaging -- Notifications ---
 
-Project Number : 164887624783
+enavamaratha API key   :  AIzaSyDyyPKXIa3IWgOmpxJUek2Ws8lH2IDAlWI
+
+Sender ID : 163942790726
 
 
-#Login  for gmail
+#Login  for gmail --- play store console , Firebase console
 username: info@enavamaratha.com
-Password:nava@1212
+Password: nava@1212
 
 
-#for Notification  and epaepr
-Link:paper.enavamaratha.com
+#for Notification  and epaepr 
+Link: paper.enavamaratha.com
 
 username : admin
-password: admin
+password: pass
 
 
 

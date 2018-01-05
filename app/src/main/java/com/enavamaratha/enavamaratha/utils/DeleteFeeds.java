@@ -6,8 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
-
 import com.enavamaratha.enavamaratha.MainApplication;
 import com.enavamaratha.enavamaratha.provider.DatabaseHelper;
 import com.enavamaratha.enavamaratha.provider.FeedData;
@@ -58,14 +56,14 @@ public class DeleteFeeds
                 temp_guid = cursor.getString(_guid);
                 PostGuid.add(temp_guid);
 
-                //  Log.i(TAG,"Get Array of Post Id In RssParser : " + PostGuid);
+
 
             } while (cursor.moveToNext());
 
 
         } else
         {
-            // Log.i(TAG, "Get Post Id In RssParser is Null ");
+
         }
 
 
@@ -91,11 +89,11 @@ public class DeleteFeeds
         }
 
         return list;
-        // Log.i(TAG,"Converted Response Json Array to List : "+list);
+
     }
 
 
-    // Delete Feeds Array Whic Are not publish on server and delete in our local db
+    // Delete Feeds Array Which Are not publish on server and delete in our local db
     public void DeleteFeed(ArrayList<String> tempArray)
     {
 
@@ -109,12 +107,9 @@ public class DeleteFeeds
         for(int i= 0;i<tempArray.size();i++)
         {
             long l = mDatabase.delete(FeedData.EntryColumns.TABLE_NAME,select,new String[]{tempArray.get(i).toString()});
-            System.out.println("Delete" + l);
         }
-        Log.i("Delete FEEDS ", "Deleted Array ");
+
         mDatabase.close();
-                           /* long l = db.delete(EntryColumns.TABLE_NAME,select,new String[]{tempArray.get(i)});
-                            Log.i(TAG,"Deleted Feed When Trash : "+tempArray.get(i));*/
 
 
     }

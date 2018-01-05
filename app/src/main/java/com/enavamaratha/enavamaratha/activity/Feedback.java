@@ -1,15 +1,21 @@
 package com.enavamaratha.enavamaratha.activity;
 
+import android.Manifest;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +30,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,20 +38,27 @@ import android.widget.Toast;
 import com.enavamaratha.enavamaratha.R;
 import com.enavamaratha.enavamaratha.service.ConnectionDetector;
 import com.enavamaratha.enavamaratha.utils.Utility;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
+
+import static com.enavamaratha.enavamaratha.utils.ApplicationConstants.USER_DETAILS;
+import static com.enavamaratha.enavamaratha.utils.ApplicationConstants.USER_NAME;
+import static com.enavamaratha.enavamaratha.utils.ApplicationConstants.User_Contact;
+
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Feedback extends AppCompatActivity implements View.OnClickListener
 {
     EditText name,msg,contact;
     ImageButton btnAttachment;
     Button btnmail,btnsms,btnwhtsapp;
-    TextView txtinfo;
+
     String Name,Message,number;
 
     String email, message, attachmentFile;
@@ -54,14 +68,9 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
 
     Context context;
     ArrayList<Uri> arrayUri = new ArrayList<Uri>();
-    //InterstitialAd mInterstitialAd;
-    private AdView sAdview,sAdview_right;
-    ConnectionDetector cd;
 
-    public static final String EMAIL_ID = "eMailId";
-    public static final String User_Contact = "contact";
-
-
+    RelativeLayout llRelFeedBakcForm;
+    boolean result = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,57 +82,37 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
         getSupportActionBar().setTitle(R.string.write_to_editor);
 
 
-        name = (EditText) findViewById(R.id.edtemail);
-        msg = (EditText) findViewById(R.id.edtmsg);
-        contact=(EditText)findViewById(R.id.edtcontact);
+        // Multiple Runtime Permission For Send Sms and Gallery
 
-        btnAttachment=(ImageButton)findViewById(R.id.btnattach);
-        btnmail = (Button) findViewById(R.id.btnemail);
-        btnsms = (Button) findViewById(R.id.btnsms);
-        btnwhtsapp=(Button)findViewById(R.id.btnwhatsapp);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            initView();
+            PermissionCheck();
+
+        } else {
+            initView();
+        }
+
+    }
+
+
+    private void initView() {
+
+        name = (EditText) findViewById(R.id.edtfemail);
+        msg = (EditText) findViewById(R.id.edtfmsg);
+        contact = (EditText) findViewById(R.id.edtfcontact);
+
+        btnAttachment = (ImageButton) findViewById(R.id.btnfattach);
+        btnmail = (Button) findViewById(R.id.btnfemail);
+        btnsms = (Button) findViewById(R.id.btnfsms);
+        btnwhtsapp = (Button) findViewById(R.id.btnfwhatsapp);
         context = getApplicationContext();
 
-        // Big Add
-       /* mInterstitialAd = new InterstitialAd(this);
-        // set the ad unit ID
-        mInterstitialAd.setAdUnitId(getString(R.string.interstitial_full_screen));
-        AdRequest adRequest = new AdRequest.Builder()
-               // . addTestDevice("CE5BF23EF32893496DAAAEA8CBB1EB93")
-                .build();
-        // Load ads into Interstitial Ads
-        mInterstitialAd.loadAd(adRequest);
-        mInterstitialAd.setAdListener(new AdListener()
-        {
-            public void onAdLoaded() {
-                showInterstitial();
-            }
-        });*/
+        llRelFeedBakcForm = (RelativeLayout) findViewById(R.id.llRelFeedback);
 
+        SharedPreferences prefs = getSharedPreferences(USER_DETAILS, Context.MODE_PRIVATE);
 
-       /* // smal ads on left side
-        RelativeLayout smallad=(RelativeLayout)findViewById(R.id.smallad_left);
-        sAdview = new AdView(getApplicationContext());
-        AdSize smallsize = new AdSize(50,50);
-        sAdview.setAdSize(smallsize);
-        sAdview.setAdUnitId("ca-app-pub-4094279933655114/3492658587");
-        smallad.addView(sAdview);
-        AdRequest adre=new AdRequest.Builder().build();
-        sAdview.loadAd(adre);
-
-        // small ads on right side
-        RelativeLayout smallad_right=(RelativeLayout)findViewById(R.id.smallad_right);
-        sAdview_right = new AdView(getApplicationContext());
-        AdSize smalls = new AdSize(50,50);
-        sAdview_right.setAdSize(smalls);
-        sAdview_right.setAdUnitId("ca-app-pub-4094279933655114/2015925381");
-        smallad_right.addView(sAdview_right);
-        AdRequest adreq=new AdRequest.Builder().build();
-        sAdview_right.loadAd(adreq);*/
-
-
-        SharedPreferences prefs = getSharedPreferences("UserDetails", Context.MODE_PRIVATE);
-
-        String username=prefs.getString(EMAIL_ID, "");
+        String username = prefs.getString(USER_NAME, "");
         String usercontact=prefs.getString(User_Contact, "");
 
         name.setText(username);
@@ -138,15 +127,47 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
         btnAttachment.setOnClickListener(this);
         btnwhtsapp.setOnClickListener(this);
 
+    }
+
+
+    private void PermissionCheck() {
+
+        Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.SEND_SMS
+                )
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+
+
+                        if (report.areAllPermissionsGranted()) {
+                            initView();
+                            result = true;
+
+                        } else if (report.isAnyPermissionPermanentlyDenied()) {
+                            showSettings();
+                            result = false;
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+
+                        token.continuePermissionRequest();
+
+
+                    }
+                }).check();
+
+
 
 
     }
 
-  /*  private void showInterstitial() {
-        if (mInterstitialAd.isLoaded()) {
-            mInterstitialAd.show();
-        }
-    }*/
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         if (requestCode == PICK_FROM_GALLERY && resultCode == RESULT_OK) {
@@ -161,68 +182,53 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
             cursor.moveToFirst();
             columnIndex = cursor.getColumnIndex(filePathColumn[0]);
             attachmentFile = cursor.getString(columnIndex);
-            Log.e("Attachment Path:", attachmentFile);
             URI = Uri.parse("file://" + attachmentFile);
             cursor.close();
         }
     }
+
+
+    // For Permissions go to Settings---
+    private void openSettings() {
+        Intent myAppSettings = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + getApplicationContext().getPackageName()));
+        myAppSettings.addCategory(Intent.CATEGORY_DEFAULT);
+        myAppSettings.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(myAppSettings);
+        finish();
+    }
+
+
+    private void showSettings() {
+        Snackbar snackbar = Snackbar
+                .make(llRelFeedBakcForm, "Storage and Sms permission required!", Snackbar.LENGTH_LONG)
+                .setAction("Settings", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        openSettings();
+                    }
+                });
+
+        snackbar.show();
+    }
+
 
     @Override
     protected void onResume() {
 
         super.onResume();
 
-       /* if( sAdview!= null ||  sAdview_right!= null)
-        {
-
-            sAdview.resume();
-            sAdview_right.resume();
-        }
-
-        //Show the AdView if the data connection is available
-
-        if(cd.isConnectingToInternet(getApplicationContext()))
-        {
-
-            sAdview.setVisibility(View.VISIBLE);
-            sAdview_right.setVisibility(View.VISIBLE);
-
-
-        }
-
-
-        sAdview.resume();
-        sAdview_right.resume();*/
-
     }
 
     @Override
     protected void onPause() {
 
-
-     /*   if(sAdview!=null ||  sAdview_right!=null)
-        {
-
-            sAdview.pause();
-            sAdview_right.pause();
-        }
-
-*/
         super.onPause();
     }
 
     @Override
     protected void onDestroy()
     {
-
-       /* if( sAdview!=null ||  sAdview_right!=null)
-        {
-
-            sAdview.destroy();
-            sAdview_right.destroy();
-        }
-*/
-
 
         super.onDestroy();
     }
@@ -249,8 +255,10 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
 
             {
 
-                    if (!TextUtils.isEmpty(Msg))
-                    {
+                if (!TextUtils.isEmpty(Msg)) {
+
+                    if (appInstalledOrNot("com.whatsapp")) {
+
                         new AlertDialog.Builder(this)
                                 .setMessage("Do You Really Want to send by WhatsApp..??")
                                 .setTitle("Send By WhatsApp")
@@ -266,19 +274,18 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
                                             message = msg.getText().toString();
 
                                             String body =
-                                                    "Name :" + name.getText().toString() + "<br>Mob:" + contact.getText().toString()+ "<br>Msg :" + msg.getText().toString();
+                                                    "Name :" + name.getText().toString() + "<br>Mob:" + contact.getText().toString() + "<br>Msg :" + msg.getText().toString();
 
 
                                             StringBuilder result = new StringBuilder();
 
-                                            result.append("Message Subject :Nava Maratha Apps News"+"\n");
+                                            result.append("Message Subject :Nava Maratha Apps News" + "\n");
                                             result.append("Name :" + name.getText().toString());
                                             result.append(System.getProperty("line.separator"));
                                             result.append("Mob:" + contact.getText().toString());
                                             result.append(System.getProperty("line.separator"));
                                             result.append("Msg :" + msg.getText().toString());
                                             String msggg = result.toString();
-
 
 
                                             Intent sendIntent = new Intent(Intent.ACTION_SEND);
@@ -288,8 +295,7 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
                                             startActivity(sendIntent);
 
 
-                                        }catch(Exception e)
-                                        {
+                                        } catch (Exception e) {
 
                                         }
 
@@ -308,7 +314,10 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
 
                                 })
                                 .show();
+                    } else {
+                        Toast.makeText(this, "WhatsApp Not Installed", Toast.LENGTH_SHORT).show();
                     }
+                }
 
 
                     else
@@ -472,6 +481,7 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
         {
 
 
+
             String names = name.getText().toString();
             String mobilees = contact.getText().toString();
             String msgs = msg.getText().toString();
@@ -484,65 +494,72 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
 
 
                     if (!TextUtils.isEmpty(msgs)) {
-                        new AlertDialog.Builder(this)
-                                .setMessage("Do You Really Want to send by SMS..??")
-                                .setTitle("Send By SMS")
-                                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-
-                                        try {
-                                            String phoneNumber = "8446447744";
-
-                                            StringBuilder result = new StringBuilder();
-
-                                            result.append("Message Subject : Nava Maratha Apps News"+"\n");
-                                            result.append("Name :" + name.getText().toString());
-                                            result.append(System.getProperty("line.separator"));
-                                            result.append("Mob:" + contact.getText().toString());
-                                            result.append(System.getProperty("line.separator"));
-                                            result.append("Msg :" + msg.getText().toString());
-
-                                            String msggg = result.toString();
 
 
-                                            System.out.println("Total Message From StringBuilder:" + msggg);
+                        if (result) {
+                            new AlertDialog.Builder(this)
+                                    .setMessage("Do You Really Want to send by SMS..??")
+                                    .setTitle("Send By SMS")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
                                             try {
-                                                SmsManager smsManager = SmsManager.getDefault();
-                                                // Send a text based SMS
-                                                smsManager.sendTextMessage(phoneNumber, null, msggg, null, null);
-                                                Toast.makeText(getApplicationContext(), "Sms Sent..Thanks For Your Feedback..!!  ", Toast.LENGTH_SHORT).show();
-                                                clear();
-                                            } catch (Exception e)
-                                            {
+                                                String phoneNumber = "8446447744";
+
+                                                StringBuilder result = new StringBuilder();
+
+                                                result.append("Message Subject : Nava Maratha Apps News" + "\n");
+                                                result.append("Name :" + name.getText().toString());
+                                                result.append(System.getProperty("line.separator"));
+                                                result.append("Mob:" + contact.getText().toString());
+                                                result.append(System.getProperty("line.separator"));
+                                                result.append("Msg :" + msg.getText().toString());
+
+                                                String msggg = result.toString();
+
+
+                                                try {
+                                                    SmsManager smsManager = SmsManager.getDefault();
+                                                    // Send a text based SMS
+                                                    smsManager.sendTextMessage(phoneNumber, null, msggg, null, null);
+                                                    Toast.makeText(getApplicationContext(), "Sms Sent..Thanks For Your Feedback..!!  ", Toast.LENGTH_SHORT).show();
+                                                    clear();
+                                                } catch (Exception e) {
+                                                    Toast.makeText(getApplicationContext(),
+                                                            "SMS failed, please try again later!",
+                                                            Toast.LENGTH_LONG).show();
+                                                    e.printStackTrace();
+                                                }
+
+                                            } catch (Throwable t) {
                                                 Toast.makeText(getApplicationContext(),
-                                                        "SMS failed, please try again later!",
+                                                        "Request failed try again: " + t.toString(),
                                                         Toast.LENGTH_LONG).show();
-                                                e.printStackTrace();
                                             }
 
-                                        } catch (Throwable t) {
-                                            Toast.makeText(getApplicationContext(),
-                                                    "Request failed try again: " + t.toString(),
-                                                    Toast.LENGTH_LONG).show();
+                                            clear();
+
+                                        }
+                                    })
+
+
+                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
                                         }
 
-                                        clear();
+                                    })
+                                    .show();
 
-                                    }
-                                })
+                        } else {
 
+                            showSettings();
 
-                                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        dialog.dismiss();
-                                    }
-
-                                })
-                                .show();
+                        }
 
 
                     } else {
@@ -557,8 +574,7 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
 
                     Toast.makeText(Feedback.this,"Please Enter Correct Number",Toast.LENGTH_SHORT).show();
                     contact.setError("Please Enter Correct Number");
-                    // Toast.makeText(applicationContext, "Please enter valid name",
-                    //  Toast.LENGTH_LONG).show();
+
                 }
 
             }
@@ -566,8 +582,7 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
             else {
                 Toast.makeText(Feedback.this,"Please Enter Your Correct Name",Toast.LENGTH_SHORT).show();
                 name.setError("Please Enter Your Correct Name");
-                //Toast.makeText(applicationContext, "Please enter valid 10 digit Mobileno",
-                //      Toast.LENGTH_LONG).show();
+
             }
 
 
@@ -589,6 +604,8 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
     }
 
     public void openGallery() {
+
+
         Intent intent = new Intent();
         intent.setType("image/* video/* ");
         intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -608,6 +625,8 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
         getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -632,6 +651,17 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
         return super.onOptionsItemSelected(item);
     }
 
+
+    private boolean appInstalledOrNot(String uri) {
+        PackageManager pm = getPackageManager();
+        try {
+            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+
+        return false;
+    }
 
 
 }

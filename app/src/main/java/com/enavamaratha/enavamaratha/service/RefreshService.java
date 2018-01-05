@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.util.Log;
 
 import com.enavamaratha.enavamaratha.Constants;
 import com.enavamaratha.enavamaratha.utils.PrefUtils;
@@ -97,7 +96,6 @@ public class RefreshService extends Service {
     public static class RefreshAlarmReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.i("REFRESHSERVICE CALLING","Caliing Refresh Sevice ");
             context.startService(new Intent(context, FetcherService.class).setAction(FetcherService.ACTION_REFRESH_FEEDS).putExtra(Constants.FROM_AUTO_REFRESH, true));
         }
     }

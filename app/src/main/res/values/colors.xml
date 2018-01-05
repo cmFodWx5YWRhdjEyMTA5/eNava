@@ -43,4 +43,8 @@
     <color name="transparent">#00000000</color>
     <color name="list_item_bg">#ffffff</color>
     <color name="view_divider_color">#BABABA</color>
+
+    <color name="lightYelloow">#ffffcc</color>
+    <color name="lightPink">#ffe6f2</color>
+    <color name="lightBlue">#e6ecff</color>
 </resources>

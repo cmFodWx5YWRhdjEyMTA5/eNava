@@ -5,7 +5,6 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
 
@@ -77,9 +76,7 @@ public class BulletinView extends TextView implements Runnable{
         }
     }
 
-    /**
-     * 获取文字宽度
-     */
+
     private void MeasureTextWidth() {
         Paint paint = this.getPaint();
         String str = this.getText().toString();
@@ -114,13 +111,13 @@ public class BulletinView extends TextView implements Runnable{
 //		if(textWidth <= getWidth()){
                 if (getScrollX() >= textWidth)
                 {
-                    Log.i("","getScrollX:"+getScrollX());
+
                     currentScrollX = -getWidth();
                     scrollTo(currentScrollX, 0);
                     if(repeatCount >= REPEAT)
                     {
-                        Log.i("Bulletin Repaeat Count",""+repeatCount);
-                        Log.i("REPEAT",""+REPEAT);
+
+
                         //reach max times
                         nextNews();
             }
@@ -129,13 +126,8 @@ public class BulletinView extends TextView implements Runnable{
                 repeatCount ++;
             }
 
-            // return;
-        }
-//		}else{
-//			if(getScrollX() >= textWidth-getWidth()+50)
-//			currentScrollX = -getWidth();
-//			scrollTo(currentScrollX, 0);
-//		}
+
+                }
 
         postDelayed(this, 10);
     }
@@ -145,19 +137,19 @@ public class BulletinView extends TextView implements Runnable{
         currentNews ++;
         currentNews = currentNews%mList.size();//cycle index
         String n = mList.get(currentNews);
-        Log.i("String n in Marquee",""+currentNews);
+
         setText(n);
         setTag(n);
 //		startScroll();
     }
 
-    // 开始滚动
+
     public void startScroll() {
         isStop = false;
         this.removeCallbacks(this);
         post(this);
     }
-    // 停止滚动
+
     public void stopScroll() {
         isStop = true;
     }

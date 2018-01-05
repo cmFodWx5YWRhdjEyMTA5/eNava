@@ -15,9 +15,8 @@ import android.widget.TextView;
 import com.enavamaratha.enavamaratha.R;
 import com.enavamaratha.enavamaratha.adapter.ExpandableListAdapter;
 import com.enavamaratha.enavamaratha.service.ConnectionDetector;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
+
+import static com.enavamaratha.enavamaratha.utils.ApplicationConstants.SITE_ADDRESS;
 
 import java.util.ArrayList;
 
@@ -27,7 +26,7 @@ public class Expandable extends AppCompatActivity {
     private ExpandableListAdapter ExpAdapter;
     private ArrayList<Group> ExpListItems;
     private ExpandableListView ExpandList;
-    private AdView sAdview,sAdview_right;
+
     ConnectionDetector cd;
 
     @Override
@@ -38,27 +37,6 @@ public class Expandable extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-        /*// smal ads on left side
-        RelativeLayout smallad=(RelativeLayout)findViewById(R.id.smallad_left);
-        sAdview = new AdView(getApplicationContext());
-        AdSize smallsize = new AdSize(50,50);
-        sAdview.setAdSize(smallsize);
-        sAdview.setAdUnitId("ca-app-pub-4094279933655114/3492658587");
-        smallad.addView(sAdview);
-        AdRequest adre=new AdRequest.Builder().build();
-        sAdview.loadAd(adre);
-
-        // small ads on right side
-        RelativeLayout smallad_right=(RelativeLayout)findViewById(R.id.smallad_right);
-        sAdview_right = new AdView(getApplicationContext());
-        AdSize smalls = new AdSize(50,50);
-        sAdview_right.setAdSize(smalls);
-        sAdview_right.setAdUnitId("ca-app-pub-4094279933655114/2015925381");
-        smallad_right.addView(sAdview_right);
-        AdRequest adreq=new AdRequest.Builder().build();
-        sAdview_right.loadAd(adreq);*/
 
 
         ExpandList = (ExpandableListView) findViewById(R.id.lvExp);
@@ -93,9 +71,6 @@ public class Expandable extends AppCompatActivity {
                 String address1 =((TextView)v.findViewById(R.id.lblListItem)).getText().toString();
 
                 if(address1.contains("कै.आचार्य गुंदेचा चौक,गंज बाजार")) {
-                   /* String numb="0241-2414141";
-                    Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + numb));
-                    startActivity(intent);*/
 
                     Uri gmmIntentUri = Uri.parse("geo:0,0?q=Ganj+Bazaar,+Nalegaon,+Ahmednagar,+Maharashtra+414001");
                     Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
@@ -122,7 +97,7 @@ public class Expandable extends AppCompatActivity {
                 else if(num.contains("www.enavamaratha.com"))
                 {
 
-                    Uri uri = Uri.parse("http://web1.abmra.in/");
+                    Uri uri = Uri.parse(SITE_ADDRESS);
                     Intent intent = new Intent(Intent.ACTION_VIEW, uri);
                     startActivity(intent);
                 }
@@ -140,6 +115,7 @@ public class Expandable extends AppCompatActivity {
         });
 
     }
+
 
     // About eNavaMaratha Contacts
     public ArrayList<Group> SetStandardGroups1() {
@@ -185,22 +161,22 @@ public class Expandable extends AppCompatActivity {
             }
             gru.setItems(ch_list);
             list.add(gru);
-            System.out.println("Size in for loop " + size);
+
 
             if(size == 7 )
             {
                 size=size+4;
-                System.out.println("Size in for loop size== 7 :"+size);
+
             }
            else if(size == 11)
             {
                 size = size+1;
-                System.out.println("Size in for loop size== 11 : "+size);
+
             }
           else if (size==12 )
             {
                 size= size+2;
-                System.out.println("Size in for loop size== 12 :"+size);
+
             }
 
         }
@@ -265,43 +241,11 @@ public class Expandable extends AppCompatActivity {
 
         super.onResume();
 
-      /*  if( sAdview!= null ||  sAdview_right!= null)
-        {
-
-            sAdview.resume();
-            sAdview_right.resume();
-        }
-
-        //Show the AdView if the data connection is available
-
-        if(cd.isConnectingToInternet(getApplicationContext()))
-        {
-
-            sAdview.setVisibility(View.VISIBLE);
-            sAdview_right.setVisibility(View.VISIBLE);
-
-
-        }
-
-
-        sAdview.resume();
-        sAdview_right.resume();*/
 
     }
 
     @Override
     protected void onPause() {
-
-/*
-
-        if(sAdview!=null ||  sAdview_right!=null)
-        {
-
-            sAdview.pause();
-            sAdview_right.pause();
-        }
-*/
-
 
         super.onPause();
     }
@@ -309,18 +253,6 @@ public class Expandable extends AppCompatActivity {
     @Override
     protected void onDestroy()
     {
-/*
-
-        if( sAdview!=null ||  sAdview_right!=null)
-        {
-
-            sAdview.destroy();
-            sAdview_right.destroy();
-        }
-
-*/
-
-
         super.onDestroy();
     }
 
@@ -354,60 +286,3 @@ public class Expandable extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
-
-
-
-
-  /*  private void prepareListDataforcontact() {
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
-
-        // Adding child data
-
-        listDataHeader.add(" दैनिक नवा मराठा ");
-        listDataHeader.add(" संपादकीय विभाग ");
-        listDataHeader.add(" जाहिरात विभाग");
-        listDataHeader.add(" अंक वितरण विभाग");
-
-
-
-        List<String> nava = new ArrayList<String>();
-
-        nava.add("मुख्य कार्यालय" +"\n"+"कै.आचार्य गुंदेचा चौक,"+"\n"+"गंज बाजार,"+"\n"+"अहमदनगर - 414001");
-        nava.add("पोस्ट बॉक्स : 53");
-        nava.add("ईमेल : info@enavamaratha.com");
-        nava.add("संकेतस्थळ : www.enavamaratha.com");
-        nava.add("दूरध्वनी : 0241- 2414141 / 2417777 / 2415555");
-
-        // Adding child data
-        List<String> sampdak = new ArrayList<String>();
-        sampdak.add("सुभाष भांगे :9767119990");
-        sampdak.add("विजय माने : 9226764128");
-        sampdak.add("सुनील हारदे : 9421558804");
-        sampdak.add("सुधीर पवार : 8888271886");
-
-
-
-        List<String> jahirat = new ArrayList<String>();
-        jahirat.add("संजय कपिले : 9260643687");
-
-
-
-
-        List<String> vitran = new ArrayList<String>();
-        vitran.add("0241- 2414141 / 2417777");
-        vitran.add("ईमेल- info@enavamaratha.com");
-
-
-        listDataChild.put(listDataHeader.get(0),nava);
-        listDataChild.put(listDataHeader.get(1), sampdak); // Header, Child data
-        listDataChild.put(listDataHeader.get(2), jahirat);
-        listDataChild.put(listDataHeader.get(3), vitran);
-
-
-    }
-
-
-
-
-*/

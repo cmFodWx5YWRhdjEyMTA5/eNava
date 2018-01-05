@@ -481,21 +481,13 @@ public class RssAtomParser extends DefaultHandler {
                     if(isUpdated )
                     {
                         db = MainApplication.getContext().openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
-                       /* Log.i(TAG,"Updated Post ID : "+guidString);
-                        Log.i(TAG,"Updated Post Date  : " +mNewRealLastUpdate);
-                        Log.i(TAG,"mEntryDate  : " + mEntryDate);
 
-                        Log.i(TAG,"Updated Post DateString Builder : : "+mDateStringBuilder);*/
-
-                        //db = MainApplication.getContext().openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
                         String select=EntryColumns.GUID +"=?";
 
                         if (mEntryDate != null)
                         {
                             values.put(EntryColumns.DATE, mEntryDate.getTime());
-                        } /*else {
-                            values.put(EntryColumns.DATE, mNow--); // -1 to keep the good entries order
-                        }*/
+                        }
                         values.put(EntryColumns.LINK, entryLinkString);
 
                         mInsertedEntriesImages.add(imagesUrls);
@@ -504,10 +496,9 @@ public class RssAtomParser extends DefaultHandler {
                         values.put(EntryColumns.FLAG, flagvalue);
 
                         long l = db.delete(EntryColumns.TABLE_NAME,select,new String[]{guidString});
-                       // System.out.println("Delete" + l);
+
                         mInserts.add(ContentProviderOperation.newInsert(mFeedEntriesUri).withValues(values).build());
 
-                        // System.out.println("Updated Values " + values);
 
                         db.close();
 
@@ -685,7 +676,7 @@ public class RssAtomParser extends DefaultHandler {
                 }
             }
         } catch (Exception e) {
-            Log.e(TAG, "Error", e);
+
         }
 
         ContentValues values = new ContentValues();

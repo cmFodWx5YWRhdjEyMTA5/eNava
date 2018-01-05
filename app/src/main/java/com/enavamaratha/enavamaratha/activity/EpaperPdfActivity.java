@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -50,6 +51,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -73,6 +75,7 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
     // Progress dialog type (0 - for Horizontal progress bar)
     public static final int progress_bar_type = 0;
     Integer pageNumber = 0;
+    DownloadFileFromURL mFile;
 
 
     @Override
@@ -108,34 +111,15 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
                             @Override
                             public void onPermissionDenied(PermissionDeniedResponse response) {
 
-                                // we need to initialisation view for snackbar
-                               // initView();
-
 
                                 if (response.isPermanentlyDenied()) {
 
                                     StoragePermissionDeniedView();
-                                   /* Snackbar snackbar = Snackbar.make(pdfView, "Storage access is needed for ePaper", Snackbar.LENGTH_LONG)
-                                            .setAction("Settings", new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    openSettings();
-                                                }
-                                            });
 
-                                    snackbar.show();*/
                                 } else {
 
                                     StoragePermissionDeniedView();
-                                    /*Snackbar snackbar = Snackbar.make(pdfView, "Storage access is needed for ePaper", Snackbar.LENGTH_LONG)
-                                            .setAction("Settings", new View.OnClickListener() {
-                                                @Override
-                                                public void onClick(View v) {
-                                                    openSettings();
-                                                }
-                                            });
 
-                                    snackbar.show();*/
                                 }
 
 
@@ -191,6 +175,8 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
     private void initView()
     {
 
+
+        mFile = new DownloadFileFromURL();
 
         // Pdf View
         pdfView = (PDFView)findViewById(R.id.pdfView);
@@ -299,7 +285,7 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
             else
             {
 
-                showAlertDialog(EpaperPdfActivity.this, "No Internet Connection", "You don't have internet connection..Please Try Again Later. ", false);
+                showAlertDialog(EpaperPdfActivity.this, getResources().getString(R.string.no_internet), getResources().getString(R.string.no_internet_msg), false);
             }
 
 
@@ -337,7 +323,6 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
     public void printBookmarksTree(List<PdfDocument.Bookmark> tree, String sep) {
         for (PdfDocument.Bookmark b : tree) {
 
-            Log.e(TAG, String.format("%s %s, p %d", sep, b.getTitle(), b.getPageIdx()));
 
             if (b.hasChildren()) {
                 printBookmarksTree(b.getChildren(), sep + "-");
@@ -370,7 +355,38 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+
             showDialog(progress_bar_type);
+
+            // On Cancel
+            // 1. Cancel on running  background task and
+            // 2. Delete Pdf File From Directory
+            pDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+
+
+                    if (mFile != null) {
+                        mFile.cancel(true);
+                    }
+
+
+                    dismissDialog(progress_bar_type);
+
+                    if (getPdfFilePath().exists()) {
+                        getPdfFilePath().delete();
+                    }
+
+
+                    showAlertDialog(EpaperPdfActivity.this, getResources().getString(R.string.cancel_download), getResources().getString(R.string.cancel_dn_msg), false);
+
+                }
+            });
+
+
+
+
+
         }
 
         /**
@@ -380,6 +396,7 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
         protected String doInBackground(String... f_url) {
             int count;
             try {
+
 
 
                 URL url = new URL(f_url[0]);
@@ -407,6 +424,15 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
                 long total = 0;
 
                 while ((count = input.read(data)) != -1) {
+
+
+                    // If Task Is Cancelled then break task
+                    if (isCancelled()) {
+                        break;
+                    }
+
+
+
                     total += count;
                     // publishing the progress....
                     // After this onProgressUpdate will be called
@@ -414,6 +440,8 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
 
                     // writing data to file
                     output.write(data, 0, count);
+
+
                 }
 
                 // flushing output
@@ -423,18 +451,24 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
                 output.close();
                 input.close();
 
+                return "success";
+
 
             } catch (Exception e) {
 
+                return "fail";
+
+
             }
 
-            return null;
+
         }
 
         /**
          * Updating progress bar
          */
         protected void onProgressUpdate(String... progress) {
+
             // setting progress percentage
             pDialog.setProgress(Integer.parseInt(progress[0]));
         }
@@ -448,10 +482,29 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
             // dismiss the dialog after the file was downloaded
             dismissDialog(progress_bar_type);
 
+            // If File Download Completed then view pdf file from Pdf  File Path
+            if (file_url.equals("success")) {
+                ReadPdfFromFile(getPdfFilePath());
+            }
 
-            ReadPdfFromFile(getPdfFilePath());
+            // else Delete that pdf file and show message
+            else {
+
+                if (getPdfFilePath().exists()) {
+
+                    getPdfFilePath().delete();
+                }
+
+
+                showAlertDialog(EpaperPdfActivity.this, getResources().getString(R.string.slow_internet), getResources().getString(R.string.slow_internet_msg), false);
+
+
+            }
+
+
 
         }
+
 
 
     }
@@ -478,7 +531,7 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
     }
 
 
-    /// SAMPLE function for pdf test
+   /* /// SAMPLE function for pdf test
     // Read pdf file from Asset
     private void ReadPdfFromAsset(String Filename)
     {
@@ -498,7 +551,7 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
                 .scrollHandle(new DefaultScrollHandle(this))
                 .load();
     }
-
+*/
 
 
     private File getPdfFilePath()
@@ -532,10 +585,20 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
         protected Boolean doInBackground(String... params) {
 
             try {
+
                 HttpURLConnection.setFollowRedirects(false);
                 HttpURLConnection con =  (HttpURLConnection) new URL(params[0]).openConnection();
                 con.setRequestMethod("HEAD");
-                System.out.println(con.getResponseCode());
+               /* int code = con.getResponseCode();
+
+                if(code == 200) {
+                    // reachable
+                    Log.e(TAG, "doInBackground: RECHABLE ");
+                } else {
+                    Log.e(TAG, "doInBackground: NOT    RECHABLE ");
+                }
+
+*/
                 return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
             }
             catch (Exception e) {
@@ -548,13 +611,14 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
         protected void onPostExecute(Boolean result) {
             boolean bResponse = result;
             progressDialog.dismiss();
-            if (bResponse)
+            if (bResponse == true)
             {
-                new DownloadFileFromURL().execute(mePaperPdfUrl);
+                mFile.execute(mePaperPdfUrl);
+
             }
             else
             {
-                showAlertDialog(EpaperPdfActivity.this, "ePaper Not Available", "ePaper Not Available Yet..Please Try Again Later ", false);
+                showAlertDialog(EpaperPdfActivity.this, getResources().getString(R.string.epaper_not), getResources().getString(R.string.epaper_not_msg), false);
             }
         }
     }
@@ -572,7 +636,10 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
                 pDialog.setIndeterminate(false);
                 pDialog.setMax(100);
                 pDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                pDialog.setCancelable(false);
+                pDialog.setCanceledOnTouchOutside(false);
+                pDialog.setCancelable(true);
+
+
                 pDialog.show();
                 return pDialog;
             default:
@@ -641,6 +708,20 @@ public class EpaperPdfActivity extends AppCompatActivity implements OnPageChange
 
         // Showing Alert Message
         alertDialog.show();*/
+    }
+
+
+    // For Handling Screen Orientation
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            //  Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            //  Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
+        }
     }
 
 

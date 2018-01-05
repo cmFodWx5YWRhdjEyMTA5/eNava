@@ -1,27 +1,26 @@
 {
   "project_info": {
-    "project_number": "689802854166",
-    "firebase_url": "https://nava-maratha.firebaseio.com",
-    "project_id": "nava-maratha",
-    "storage_bucket": "nava-maratha.appspot.com"
+    "project_number": "164887624783",
+    "firebase_url": "https://enavamaratha.firebaseio.com",
+    "project_id": "enavamaratha"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:689802854166:android:d3708ef6e4612a95",
+        "mobilesdk_app_id": "1:164887624783:android:d3708ef6e4612a95",
         "android_client_info": {
           "package_name": "com.enavamaratha.enavamaratha"
         }
       },
       "oauth_client": [
         {
-          "client_id": "689802854166-87urp79c7dbosa6te74ho2u27dsgmsu8.apps.googleusercontent.com",
+          "client_id": "164887624783-imr9a5ncp2cogeeg5sfdamddl32ejgnn.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCNnlxlM8Sa5xC73RvHJThHA_xYL_zmHsU"
+          "current_key": "AIzaSyBQIBTxnz0dBhVvz4CA8HNNqGRVySwTBY0"
         }
       ],
       "services": {
