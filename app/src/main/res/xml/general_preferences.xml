@@ -27,7 +27,7 @@
         <com.enavamaratha.enavamaratha.view.AutoSummaryListPreference
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:defaultValue="900000"
+            android:defaultValue="300000"
             android:dependency="refresh.enabled"
             android:entries="@array/settings_intervals"
             android:entryValues="@array/settings_interval_values"
@@ -114,7 +114,7 @@
         <com.enavamaratha.enavamaratha.view.AutoSummaryListPreference
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:defaultValue="WIFI_ONLY_PRELOAD"
+            android:defaultValue="ALWAYS_PRELOAD"
             android:dependency="display_images"
             android:entries="@array/settings_preload_image_modes"
             android:entryValues="@array/settings_preload_image_modes_values"

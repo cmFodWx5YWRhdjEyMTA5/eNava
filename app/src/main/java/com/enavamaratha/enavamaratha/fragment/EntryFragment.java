@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -229,10 +230,14 @@ public class EntryFragment extends SwipeRefreshFragment implements BaseActivity.
                         String link = cursor.getString(mLinkPos);
                         if (link != null) {
                             String title = cursor.getString(mTitlePos);
-                            startActivity(Intent.createChooser(
+                            String shareText = title + "\n" + link + getResources().getString(R.string.share_news_text);
+
+                            startActivity(Intent.createChooser(new Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_TEXT, shareText).setType(Constants.MIMETYPE_TEXT_PLAIN), getString(R.string.menu_share)));
+
+                          /*  startActivity(Intent.createChooser(
                                     new Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_SUBJECT, title).putExtra(Intent.EXTRA_TEXT, link)
                                             .setType(Constants.MIMETYPE_TEXT_PLAIN), getString(R.string.menu_share)
-                            ));
+                            ));*/
                         }
                     }
                     break;

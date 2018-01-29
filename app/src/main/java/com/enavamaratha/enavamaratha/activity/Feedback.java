@@ -506,7 +506,7 @@ public class Feedback extends AppCompatActivity implements View.OnClickListener
                                         public void onClick(DialogInterface dialog, int which) {
 
                                             try {
-                                                String phoneNumber = "8446447744";
+                                                String phoneNumber = "9209666666";
 
                                                 StringBuilder result = new StringBuilder();
 

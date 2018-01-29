@@ -95,7 +95,7 @@
     <string name="filter_apply_to_content">Apply to content</string>
     <string name="accept">ACCEPT</string>
     <string name="reject">REJECT</string>
-    <string name="feed_search">Feed search</string>
+    <string name="feed_search">Search</string>
     <string name="select_file">Select file (SD-root)</string>
     <string name="question_delete_feed">Do you really want to delete this feed?</string>
     <string name="question_delete_group">Do you really want to delete this group and all of its feeds? </string>
@@ -317,7 +317,7 @@
     <string name="travel">पर्यटन </string>
     <string name="build"> वास्तू </string>
     <string name="pakk"> पाककला </string>
-    <string name="child"> मुलांचे विषय </string>
+    <string name="child"> मुलांचे विश्व </string>
     <string name="gk"> सामन्य ज्ञान</string>
     <string name="thought"> सुविचार </string>
     <string name="property">प्रॉप्रटी विषयी</string>
@@ -353,7 +353,14 @@
     <!--Alert Messages-->
     <string name="no_internet_msg">You don\'t have internet connection..Please try again later.</string>
     <string name="slow_internet_msg">You have slow internet connection..Please try again later. </string>
-    <string name="epaper_not_msg">ePaper Not Available Yet..Please try again later. </string>
+    <string name="epaper_not_msg">ePaper not available yet..Please try again later Or Today may be holiday.</string>
     <string name="cancel_dn_msg">Cancel downloading ePaper.</string>
+
+    <string name="share_news_text">\nvia Nava Maratha App\n(Download Now):\nhttps://goo.gl/sZE6kz</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search">Search Here...</string>
+
 
 </resources>

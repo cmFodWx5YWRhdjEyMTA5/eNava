@@ -2,8 +2,8 @@
 package  com.enavamaratha.enavamaratha.activity;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.LoaderManager;
@@ -16,10 +16,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -27,6 +30,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -35,11 +39,15 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -69,9 +77,12 @@ import  com.enavamaratha.enavamaratha.utils.UiUtils;
 import com.enavamaratha.enavamaratha.provider.DatabaseHelper;
 
 import static com.enavamaratha.enavamaratha.utils.ApplicationConstants.APP_DELETE_FEEEDS_URL;
+
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -106,7 +117,7 @@ import cz.msebera.android.httpclient.protocol.HttpContext;
 import cz.msebera.android.httpclient.util.EntityUtils;
 
 
-public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, DatePickerDialog.OnDateSetListener {
 
     private static final String STATE_CURRENT_DRAWER_POS = "STATE_CURRENT_DRAWER_POS";
 
@@ -155,8 +166,9 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
     //AdView mAdView;
 
     private static boolean Delete_flag = true;
-    String devid;
+    String devid, mButtonlanding_selected;
     ImageView imgAdLeft, imgAdRight;
+    private int doubleBackCount = 0;
 
 
     @Override
@@ -170,54 +182,26 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-         String Url = getIntent().getStringExtra("url");
-        devid = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-
-        // Small Advertise Code
-
-        imgAdLeft = (ImageView) findViewById(R.id.img_ad_Left);
-        imgAdRight = (ImageView) findViewById(R.id.img_ad_Right);
+        initView();
 
         if (ConnectionDetector.isConnectingToInternet(getApplicationContext())) {
+
+
             imgAdLeft.setVisibility(View.VISIBLE);
             imgAdRight.setVisibility(View.VISIBLE);
 
-            Picasso.with(this)
-                    .load("http://paper.enavamaratha.com//images/Advt/left.png")
-                    .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE)
-                    .networkPolicy(NetworkPolicy.NO_CACHE)
-                    .into(imgAdLeft);
+            showSmallAds();
 
-            Picasso.with(this)
-                    .load("http://paper.enavamaratha.com//images/Advt/right.png")
-                    .memoryPolicy(MemoryPolicy.NO_CACHE)
-                    .into(imgAdRight);
+
         } else {
             imgAdLeft.setVisibility(View.GONE);
             imgAdRight.setVisibility(View.GONE);
+
         }
 
 
 
-        /*
-        *
-        * Dexter.checkPermissions(new MultiplePermissionsListener() {
-                    @Override public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        List<String> grantedPermissions = new ArrayList<String>();
-                        for(PermissionGrantedResponse response: report.getGrantedPermissionResponses()){
-                            if(!grantedPermissions.contains(response.getPermissionName())){
-                                grantedPermissions.add(response.getPermissionName());
-                            }
-                        }
-                        Toast.makeText(getApplicationContext(), "Granted permissions:"+grantedPermissions.toString(), Toast.LENGTH_LONG).show();
-                    }
-                    @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                        token.continuePermissionRequest();
-                    }
-                }, Manifest.permission.CAMERA, Manifest.permission.READ_CONTACTS, Manifest.permission.RECORD_AUDIO);
-            }
-        });
-        * */
+
 
 
         // Mutiple Runtime Permission
@@ -225,42 +209,10 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         // ---- https://github.com/Karumi/Dexter
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
+            showMultiplePermissionView();
 
-            Dexter.withActivity(this)
-                    .withPermissions(
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_CONTACTS,
-                            Manifest.permission.CALL_PHONE,
-                            Manifest.permission.SEND_SMS
-                            )
-                    .withListener(new MultiplePermissionsListener() {
-                        @Override
-                        public void onPermissionsChecked(MultiplePermissionsReport report) {
-
-
-                        }
-
-                        @Override
-                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-
-                            token.continuePermissionRequest();
-
-
-                        }
-                    }).check();
         }
 
-
-       /* Dexter.withActivity(this)
-                .withPermissions(
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_CONTACTS,
-                        Manifest.permission.SEND_SMS,
-                        Manifest.permission.CALL_PHONE
-                ).withListener(new MultiplePermissionsListener() {
-            @Override public void onPermissionsChecked(MultiplePermissionsReport report) {*//* ... *//*}
-            @Override public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {*//* ... *//*}
-        }).check();*/
 
 
 
@@ -277,99 +229,6 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         }
 
 
-        /*SharedPreferences prefs = getSharedPreferences("UserDetails", Context.MODE_PRIVATE);
-        String eMailId = prefs.getString("eMailId", "");
-        arre = new ArrayList<String>();*/
-
-        db = openOrCreateDatabase("MyMb", MODE_PRIVATE, null);
-        // String simple=getIntent().getStringExtra("home");
-
-
-        // getting value of Intent from FetcherService.java class
-        // when notification comes from update of news and click of notification then goto that news page
-        Bundle b = getIntent().getExtras();
-        String simple = b.getString("home");
-
-        if (simple != null) {
-            selectDrawerItem(3);
-        }
-
-
-        int entryid = b.getInt("entryid");
-        // Uri -  content://com.enavamaratha.enavamaratha.provider.FeedData/feeds/1/entries
-        // Id : 1,2,3,...
-        // Feed_id is 1 because we just want to show first feeds i.e thalak batmya
-        Uri mUri = Uri.parse("content://com.enavamaratha.enavamaratha.provider.FeedData/feeds/1/entries");
-        long l;
-        if (entryid != 0) {
-
-            // coverting int to long for
-            l = (long) entryid;
-
-            // goto particular news when click on news intent
-            startActivity(new Intent(Intent.ACTION_VIEW, ContentUris.withAppendedId(mUri, l)));
-
-        }
-
-
-        // getting database for entryid
-        dbb = new DatabaseHelper(new Handler(), getApplicationContext());
-        database = dbb.getWritableDatabase();
-
-        // getting notification from gcm(.net side) of news then goto that news on click of that notification intent
-
-
-        Uri mUr = Uri.parse("content://com.enavamaratha.enavamaratha.provider.FeedData/all_entries");
-        if (Url != null) {
-            int _idd;
-            long entryidd;
-            long entryy = 0;
-            String re;
-
-            String[] cols = new String[]{FeedData.EntryColumns._ID, FeedData.EntryColumns.FEED_ID, FeedData.EntryColumns.GUID};
-            String filter = FeedData.EntryColumns.GUID + "='" + Url + "'";
-            Cursor cursor = database.query(FeedData.EntryColumns.TABLE_NAME, cols, filter, null, null, null, null, null);
-
-            // check url is exist in db
-            if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
-                do {
-                    _idd = cursor.getColumnIndex(FeedData.EntryColumns._ID);
-                    re = cursor.getString(_idd);
-                    //convert string to long because our id is in long
-                    entryidd = Long.parseLong(re);
-                    entryy = entryidd;
-
-
-                } while (cursor.moveToNext());
-
-                startActivity(new Intent(Intent.ACTION_VIEW, ContentUris.withAppendedId(mUr, entryy)));
-            }
-
-            // else go to home activity
-            else {
-                Intent i = new Intent(HomeActivity.this, GcmNotification.class);
-//                i.putExtra("home","home");
-                startActivity(i);
-                finish();
-            }
-
-
-            cursor.close();
-            database.close();
-        }
-
-
-        mEntriesFragment = (EntriesListFragment) getFragmentManager().findFragmentById(R.id.entries_list_fragment);
-
-        mTitle = getTitle();
-
-        inte = getIntent().getStringExtra("1");
-
-        mLeftDrawer = findViewById(R.id.left_drawer);
-        mDrawerList = (ListView) findViewById(R.id.drawer_list);
-
-
-        mDrawerList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
 
         mDrawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
@@ -384,50 +243,20 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
                 if (position == 0) {
 
 
-                    // Delete Pdf files only save top 5 pdf files by files date
+                    deleteOldePaeprPdfs();
 
-                    String path = Environment.getExternalStorageDirectory() + "/" + "NavaMaratha/";
+                    showDatePicker();
 
-                    File directory = new File(path);
-
-                    if (directory.exists()) {
-
-                        File[] files = directory.listFiles();
-
-
-                        // Save only top 5 (By Date of file modified date) files
-                        if (files.length > 5) {
-
-                            // Sorting Array By files's last Modified Date and Get files array by Descending Date
-                            Arrays.sort(files, new Comparator<File>() {
-                                public int compare(File f1, File f2) {
-                                    return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
-                                }
-                            });
-
-
-                            // If Sorted Files Array size is grater than 5 then
-                            // Save top 5 pdf files(By Last Modified date of File) and delete all pdf files
-                            for (int i = 5; i < files.length; i++) {
-
-                                // Delete Pdf files one by one
-                                files[i].delete();
-
-                            }
-
-
-                        }
-                    }
-
-
+                   /* // OLD Date Picker CODE
                     // Show Date Picker
                     DialogFragment dFragment = new DatePickerFragment();
 
                     // Show the date picker dialog fragment
                     dFragment.show(getFragmentManager(), "Date Picker");
+*/
 
 
-                    // Epaper Delete Cache Logic
+                    // Epaper Delete Cache Logic for epaper images cache
                     // If Days Diff greater than 7 days then delete all cache
 
 /*
@@ -671,10 +500,10 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
 
                     //add a subject
                     shareIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
-                            "Nava Maratha App");
+                            "NavaMaratha App");
 
                     //build the body of the message to be shared
-                    String shareMessage = "Track Ahmednagar Local News with NavaMaratha App. Click this link to download & install" +
+                    String shareMessage = "Track Ahmednagar Local News with NavaMaratha App. Click this link to Download & Install Android App" +
                             "\n" + "https://goo.gl/sZE6kz";
 
                     //add the message
@@ -743,6 +572,284 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerLayout.openDrawer(Gravity.LEFT);
     }
 
+
+    private void initView() {
+
+        String Url = getIntent().getStringExtra("url");
+
+
+        devid = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        // Small Advertise Code
+
+        imgAdLeft = (ImageView) findViewById(R.id.img_ad_Left);
+        imgAdRight = (ImageView) findViewById(R.id.img_ad_Right);
+
+
+        //  db = openOrCreateDatabase("MyMb", MODE_PRIVATE, null);
+        // String simple=getIntent().getStringExtra("home");
+
+
+        // getting value of Intent from FetcherService.java class
+        // when notification comes from update of news and click of notification then goto that news page
+        Bundle b = getIntent().getExtras();
+        String simple = b.getString("home");
+
+        if (simple != null) {
+            selectDrawerItem(3);
+        }
+
+
+        // Landing page selected button goto that news
+        mButtonlanding_selected = b.getString("land");
+        if (mButtonlanding_selected != null) {
+            // Log.e("HOME", "initView: Landing Button Value  ----------"+mButtonlanding_selected);
+            // if epeper
+
+            if (mButtonlanding_selected.equals("0")) {
+                deleteOldePaeprPdfs();
+                showDatePicker();
+
+            } else {
+                selectDrawerItem(Integer.parseInt(mButtonlanding_selected));
+            }
+
+
+        }
+
+
+        int entryid = b.getInt("entryid");
+        // Uri -  content://com.enavamaratha.enavamaratha.provider.FeedData/feeds/1/entries
+        // Id : 1,2,3,...
+        // Feed_id is 1 because we just want to show first feeds i.e thalak batmya
+        Uri mUri = Uri.parse("content://com.enavamaratha.enavamaratha.provider.FeedData/feeds/1/entries");
+        long l;
+        if (entryid != 0) {
+
+            // coverting int to long for
+            l = (long) entryid;
+
+            // goto particular news when click on news intent
+            startActivity(new Intent(Intent.ACTION_VIEW, ContentUris.withAppendedId(mUri, l)));
+
+        }
+
+
+        // getting database for entryid
+        dbb = new DatabaseHelper(new Handler(), getApplicationContext());
+        database = dbb.getWritableDatabase();
+
+
+        // getting notification from gcm(.net side) of news then goto that news on click of that notification intent
+
+
+        Uri mUr = Uri.parse("content://com.enavamaratha.enavamaratha.provider.FeedData/all_entries");
+        if (Url != null) {
+            int _idd;
+            long entryidd;
+            long entryy = 0;
+            String re;
+
+            String[] cols = new String[]{FeedData.EntryColumns._ID, FeedData.EntryColumns.FEED_ID, FeedData.EntryColumns.GUID};
+            String filter = FeedData.EntryColumns.GUID + "='" + Url + "'";
+            Cursor cursor = database.query(FeedData.EntryColumns.TABLE_NAME, cols, filter, null, null, null, null, null);
+
+            // check url is exist in db
+            if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
+                do {
+                    _idd = cursor.getColumnIndex(FeedData.EntryColumns._ID);
+                    re = cursor.getString(_idd);
+                    //convert string to long because our id is in long
+                    entryidd = Long.parseLong(re);
+                    entryy = entryidd;
+
+
+                } while (cursor.moveToNext());
+
+
+                startActivity(new Intent(Intent.ACTION_VIEW, ContentUris.withAppendedId(mUr, entryy)));
+                cursor.close();
+                database.close();
+            }
+
+
+            // else go to home activity
+            else {
+                Intent i = new Intent(HomeActivity.this, GcmNotification.class);
+//                i.putExtra("home","home");
+                startActivity(i);
+                finish();
+            }
+
+
+        }
+
+
+        mEntriesFragment = (EntriesListFragment) getFragmentManager().findFragmentById(R.id.entries_list_fragment);
+
+        mTitle = getTitle();
+
+        inte = getIntent().getStringExtra("1");
+
+        mLeftDrawer = findViewById(R.id.left_drawer);
+        mDrawerList = (ListView) findViewById(R.id.drawer_list);
+
+
+        mDrawerList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+
+
+    }
+
+
+    // show Small advertise on Toolbar
+    private void showSmallAds() {
+
+
+        Picasso.with(this)
+                .load("http://paper.enavamaratha.com//images/Advt/left.png")
+                .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
+                .into(imgAdLeft, new Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError() {
+
+                        // If Image have Error then make image not visible/gone
+                        imgAdLeft.setVisibility(View.GONE);
+
+                    }
+                });
+
+
+        Picasso.with(this)
+                .load("http://paper.enavamaratha.com//images/Advt/right.png")
+                .memoryPolicy(MemoryPolicy.NO_CACHE)
+                .into(imgAdRight, new Callback() {
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError() {
+                        // If Image have Error then make image not visible/gone
+
+                        imgAdRight.setVisibility(View.GONE);
+
+                    }
+                });
+
+
+        imgAdLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openBigAdvertise("http://paper.enavamaratha.com//images/Advt/leftbig.png");
+            }
+        });
+
+
+        imgAdRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                openBigAdvertise("http://paper.enavamaratha.com//images/Advt/rightbig.png");
+
+            }
+        });
+
+
+    }
+
+
+    private void showMultiplePermissionView() {
+
+        Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.CALL_PHONE,
+                        Manifest.permission.SEND_SMS
+                )
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+
+
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+
+                        token.continuePermissionRequest();
+
+
+                    }
+                }).check();
+    }
+
+
+    private void deleteOldePaeprPdfs() {
+
+
+        // Delete Pdf files only save top 5 pdf files by files date
+
+        String path = Environment.getExternalStorageDirectory() + "/" + "NavaMaratha/";
+
+        File directory = new File(path);
+
+        if (directory.exists()) {
+
+            try {
+
+
+                if (directory.listFiles() != null) {
+
+
+                    File[] files = directory.listFiles();
+
+                    // Save only top 5 (By Date of file modified date) files
+                    if (files.length > 5) {
+
+                        // Sorting Array By files's last Modified Date and Get files array by Descending Date
+                        Arrays.sort(files, new Comparator<File>() {
+                            public int compare(File f1, File f2) {
+                                return Long.valueOf(f2.lastModified()).compareTo(f1.lastModified());
+                            }
+                        });
+
+
+                        // If Sorted Files Array size is grater than 5 then
+                        // Save top 5 pdf files(By Last Modified date of File) and delete all pdf files
+                        for (int i = 5; i < files.length; i++) {
+
+                            // Delete Pdf files one by one
+                            files[i].delete();
+
+                        }
+
+
+                    }
+                } else {
+                    //
+                }
+            } catch (Exception e) {
+
+            }
+        }
+
+
+    }
+
+
+
+
+
+
+
     private void launchmarket() {
         Uri uri = Uri.parse("market://details?id=" + getApplicationContext().getPackageName());
         Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
@@ -770,26 +877,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         dialog.show();
     }
 
-    /*private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil
-                .isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            } else {
-                Toast.makeText(
-                        getApplicationContext(),
-                        "This device doesn't support Play services, App will not work normally",
-                        Toast.LENGTH_LONG).show();
-                finish();
-            }
-            return false;
-        }
 
-        return true;
-    }
-*/
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         outState.putInt(STATE_CURRENT_DRAWER_POS, mCurrentDrawerPos);
@@ -819,6 +907,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
     }
 
 
@@ -827,7 +916,9 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         super.onNewIntent(intent);
 
         // We reset the current drawer position
+        // Comment Code for Landing Page
         selectDrawerItem(3);
+
         setIntent(intent);
 
         // Uri : content://com.enavamaratha.enavamaratha.provider.FeedData/feeds/1/entries
@@ -846,7 +937,9 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
             case android.R.id.home:
                 finish();
                 return true;
+
         }
+
         return (super.onOptionsItemSelected(item));
     }
 
@@ -917,8 +1010,18 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
                 public void run() {
 
                     mDrawerList.setAdapter(mDrawerAdapter);
+                    // Comment Code for Landing Page
+                    //selectDrawerItem(3);
 
-                    selectDrawerItem(3);
+                    if (mButtonlanding_selected != null) {
+
+                        selectDrawerItem(Integer.parseInt(mButtonlanding_selected));
+                    } else {
+                        selectDrawerItem(3);
+                    }
+
+                    //  Log.e("Home", "run:----------- "+mButtonlanding_selected);
+
 
 
                 }
@@ -934,7 +1037,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         mDrawerAdapter.setCursor(null);
     }
 
-    private void selectDrawerItem(int position) {
+    public void selectDrawerItem(int position) {
         mCurrentDrawerPos = position;
 
         if (mDrawerAdapter == null)
@@ -946,6 +1049,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         Uri newUri = null;
         boolean showFeedInfo = true;
 
+        doubleBackCount = 0;
         switch (position) {
             case SEARCH_DRAWER_POSITION:
                 newUri = EntryColumns.SEARCH_URI(mEntriesFragment.getCurrentSearch());
@@ -965,11 +1069,13 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
 
 
             case 3:
+
                 newUri = EntryColumns.ENTRIES_FOR_FEED_CONTENT_URI(1);
                 showFeedInfo = false;
                 break;
 
             case 4:
+
                 newUri = EntryColumns.ENTRIES_FOR_FEED_CONTENT_URI(2);
                 showFeedInfo = false;
                 break;
@@ -1059,6 +1165,13 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         // First open => we open the drawer for you
         if (PrefUtils.getBoolean(PrefUtils.FIRST_OPEN, true)) {
+
+
+            // On first Open Refresh Feeds Automatically
+
+            startService(new Intent(HomeActivity.this, FetcherService.class).setAction(FetcherService.ACTION_REFRESH_FEEDS));
+
+
             PrefUtils.putBoolean(PrefUtils.FIRST_OPEN, false);
             if (mDrawerLayout != null) {
                 mDrawerLayout.postDelayed(new Runnable() {
@@ -1072,11 +1185,17 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         refreshTitle(0);
     }
 
+
     public void refreshTitle(int mNewEntriesNumber) {
         switch (mCurrentDrawerPos) {
             case SEARCH_DRAWER_POSITION:
-                getSupportActionBar().setTitle(android.R.string.search_go);
-                getSupportActionBar().setIcon(R.drawable.ic_search);
+                // Not to show search icon and search name in toolbar
+                // Change from 19/01/2018
+                getSupportActionBar().setTitle("");
+                getSupportActionBar().setIcon(new ColorDrawable(getResources().getColor(android.R.color.transparent)));
+
+             /*   getSupportActionBar().setTitle(android.R.string.search_go);
+                getSupportActionBar().setIcon(R.drawable.ic_search);*/
                 break;
             case 0:
                 getSupportActionBar().setTitle(R.string.epaper);
@@ -1226,7 +1345,7 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
 
     }
 
-    public boolean isTableExists(String tableName) {
+   /* public boolean isTableExists(String tableName) {
 
 
         Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '" + tableName + "'", null);
@@ -1240,8 +1359,12 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
         db.close();
         return false;
     }
+*/
 
 
+
+
+/*
     public static class DatePickerFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
         @Override
@@ -1295,9 +1418,9 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
 
 
                             // For ePaper Images Activity
-                           /* Intent i = new Intent(getActivity(), Epaper.class);
+                           *//* Intent i = new Intent(getActivity(), Epaper.class);
                             i.putExtra("date", formattedDate);
-                            startActivity(i);*/
+                            startActivity(i);*//*
 
                         }
                     });
@@ -1326,53 +1449,140 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         }
 
-    }
+    }*/
 
 
     @Override
     public void onBackPressed() {
         // TODO Auto-generated method stub
 
-        android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(HomeActivity.this);
+
+        backCalling();
+
+/*
+
+        if (doubleBackCount == 1)
+        {
+            Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        }
+
+
+        if(doubleBackCount == 2)
+        {
+            Log.e("HOME ", "onBackPressed: double Back--------- "+doubleBackCount);
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackCount =0;
+                }
+            }, 2000);
+
+            super.onBackPressed();
+                return;
+
+        }
+
+
+        mDrawerLayout.openDrawer(mLeftDrawer);
+
+        doubleBackCount++;
+*/
+
+
+
+
+
+
+
+
+
+
+      /*  android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(HomeActivity.this);
         builder.setTitle("Exit");
         builder.setMessage("Are you sure want to exit?");
 
-        // ok Button
-        String positiveText = getString(android.R.string.ok);
-        builder.setPositiveButton(positiveText,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // positive button logic
-                        Intent intent = new Intent(Intent.ACTION_MAIN);
-                        intent.addCategory(Intent.CATEGORY_HOME);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
+        // New Dialouge
+        // Interchange ok and home button // 12 th jan 2018
 
-        // cancel Button
-        String NegativeText = getString(android.R.string.cancel);
-        builder.setNegativeButton(NegativeText, null);
 
-        // home Button
-        String NeturalText = "Home";
-        builder.setNeutralButton(NeturalText, new DialogInterface.OnClickListener() {
+        String neutralText = getString(android.R.string.ok);
+        String positiveText = "Home";
+        String negativeText = getString(android.R.string.cancel);
+
+        // Onclick Home open Navigation Drawer
+        builder.setPositiveButton(positiveText, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // positive button logic
-                Intent i = new Intent(HomeActivity.this, HomeActivity.class);
-                i.putExtra("home", "home");
-                startActivity(i);
+
+                mDrawerLayout.openDrawer(mLeftDrawer);
+
             }
         });
+
+
+
+        // OnClick Ok Finish All Activity's
+        builder.setNeutralButton(neutralText, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                finish();
+
+            }
+        });
+
+
+
+        // OnClick Cancel Do Nothing
+
+        builder.setNegativeButton(negativeText,null);
 
         android.support.v7.app.AlertDialog dialog = builder.create();
         // display dialog
         dialog.show();
+*/
+
+    }
 
 
+    public void backCalling() {
+        super.onBackPressed();
+/*
+        if (doubleBackCount == 1)
+        {
+            Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        }
+
+
+        if(doubleBackCount == 2)
+        {
+            Log.e("HOME ", "onBackPressed: double Back--------- "+doubleBackCount);
+
+            new Handler().postDelayed(new Runnable() {
+
+                @Override
+                public void run() {
+                    doubleBackCount =0;
+                }
+            }, 2000);
+
+            super.onBackPressed();
+            return;
+
+        }
+
+
+        mDrawerLayout.openDrawer(mLeftDrawer);
+
+        doubleBackCount++;*/
     }
 
 
@@ -1464,6 +1674,133 @@ public class HomeActivity extends BaseActivity implements LoaderManager.LoaderCa
 
         }
     }
+
+
+    // Open Big Advertise Popup
+    private void openBigAdvertise(String imageUrl) {
+        final android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(HomeActivity.this);
+
+
+        LayoutInflater inflater = getLayoutInflater();
+
+        View BigAdLayout = inflater.inflate(R.layout.layout_big_advertise, null);
+
+        ImageView BigAdImage = (ImageView) BigAdLayout.findViewById(R.id.img_big_adv);
+        ImageButton AdClose = (ImageButton) BigAdLayout.findViewById(R.id.img_big_adv_close);
+
+
+        builder.setView(BigAdLayout);
+
+
+        final android.support.v7.app.AlertDialog alD = builder.show();
+
+
+        // Load Big Image with Url
+        Picasso.with(this)
+                .load(imageUrl)
+                .memoryPolicy(MemoryPolicy.NO_CACHE, MemoryPolicy.NO_STORE)
+                .networkPolicy(NetworkPolicy.NO_CACHE)
+                .error(R.drawable.loaderror)
+                .into(BigAdImage, new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        // OnSuccess Load Image
+
+                    }
+
+                    @Override
+                    public void onError() {
+                        // OnError Show Other Image/Url
+
+
+                    }
+                });
+
+
+        // close Big Advertise
+        AdClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                alD.dismiss();
+            }
+        });
+
+
+    }
+
+
+    private void showDatePicker() {
+
+
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+
+        DatePickerDialog dpd = DatePickerDialog.newInstance(HomeActivity.this, year, month, day);
+
+        Calendar maxdate = Calendar.getInstance();
+
+        // set max date as tommorow date
+        maxdate.add(Calendar.DATE, 1);
+
+        // Set the Calendar new date(current date) as maximum date of date picker
+        dpd.setMaxDate(maxdate);
+
+
+        Calendar mindate = Calendar.getInstance();
+
+
+        // Subtract 365 days from Calendar updated date
+        mindate.add(Calendar.DATE, -365);
+
+        // Set the Calendar new date as minimum date of date picker
+        dpd.setMinDate(mindate);
+
+
+        dpd.setAccentColor(getResources().getColor(R.color.Indigo_800));
+        // no Dark theme
+        dpd.setThemeDark(false);
+
+
+        dpd.setCancelable(true);
+
+        dpd.show(getFragmentManager(), "Datepickerdialog");
+
+
+    }
+
+
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+
+
+        Calendar newDate = Calendar.getInstance();
+        newDate.set(year, monthOfYear, dayOfMonth);
+
+
+        // For ePaper Url we required this date format
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        String formattedDate = dateFormat.format(newDate.getTime());
+
+        // For Pdf Name we required this format
+        DateFormat dateFormat1 = new SimpleDateFormat("dd_MM_yyyy");
+        String formattedDate1 = dateFormat1.format(newDate.getTime());
+
+
+        // For ePaper Pdf files Activity
+        Intent i = new Intent(HomeActivity.this, EpaperPdfActivity.class);
+        i.putExtra("date", formattedDate);
+        i.putExtra("pdf", formattedDate1);
+        startActivity(i);
+
+
+    }
+
+
 
 
 

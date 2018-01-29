@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="5dp"
+    android:background="@color/white"
+    tools:context="com.enavamaratha.enavamaratha.activity.LadningActivity"
+    android:scrollbars="vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/white">
+
+
+        <!--First Row-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:weightSum="4.0"
+            android:layout_weight="4.0"
+            android:background="@color/white"
+            android:layout_margin="10dp">
+
+
+            <Button
+                android:id="@+id/btn_epaper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/epaper"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_latestnews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/latestnews"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_econonews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/economics"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_healthnews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/health"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+
+        </LinearLayout>
+
+
+        <!--Second Row-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:weightSum="4.0"
+            android:layout_weight="4.0"
+            android:background="@color/white"
+            android:layout_margin="10dp">
+
+
+            <Button
+                android:id="@+id/btn_sciencenews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/science"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_entertainmentnews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/entertainment"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_religiousnews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/religious"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_astrologynews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/sign"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+
+        </LinearLayout>
+
+
+        <!--Third Row-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:weightSum="4.0"
+            android:layout_weight="4.0"
+            android:background="@color/white"
+            android:layout_margin="10dp">
+
+
+            <Button
+                android:id="@+id/btn_interviewnews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/interview"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_travelnews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/travel"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_constructionnews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/build"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_kitchennews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pakk"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+        </LinearLayout>
+
+
+        <!--Fourth Row-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:weightSum="4.0"
+            android:layout_weight="4.0"
+            android:background="@color/white"
+            android:layout_margin="10dp">
+
+
+            <Button
+                android:id="@+id/btn_childnews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/child"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_gknews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/gk"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_thoughtnews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/thought"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_jobnews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/jobs"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+        </LinearLayout>
+
+
+        <!--Fifth Row-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:weightSum="4.0"
+            android:layout_weight="4.0"
+            android:background="@color/white"
+            android:layout_margin="10dp">
+
+
+            <Button
+                android:id="@+id/btn_propertynews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/property"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_poll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/poll"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_quiz"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/question"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_games"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/game"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+        </LinearLayout>
+
+
+        <!--Sixth Row-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:weightSum="4.0"
+            android:layout_weight="4.0"
+            android:background="@color/white"
+            android:layout_margin="10dp">
+
+
+            <Button
+                android:id="@+id/btn_notifications"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/notifications"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_emergencycontact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/emergency"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_feedback"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/write_to_editor"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_contact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/contact"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+        </LinearLayout>
+
+
+        <!--Sebenth Row-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="horizontal"
+            android:weightSum="4.0"
+            android:layout_weight="4.0"
+            android:background="@color/white"
+            android:layout_margin="10dp">
+
+
+            <Button
+                android:id="@+id/btn_about"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/about"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_settings"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/settings"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_rateapp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rate"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+            <Button
+                android:id="@+id/btn_share"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/share"
+                android:textColor="@color/Indigo_800"
+                android:layout_weight="1.0"
+                android:background="@color/white" />
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</LinearLayout>

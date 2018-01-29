@@ -3,6 +3,20 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- <item
+         android:id="@+id/menu_news_search"
+         android:title="@string/feed_search"
+         android:icon="@drawable/ic_search"
+         app:actionViewClass="android.support.v7.widget.SearchView"
+         app:showAsAction="always"
+         />-->
+
+    <item
+        android:id="@+id/menu_news_search"
+        android:title="@string/feed_search"
+        android:icon="@drawable/ic_search"
+        app:showAsAction="always" />
+
     <item
         android:id="@+id/menu_refresh"
         android:icon="@drawable/ic_refresh"
@@ -18,12 +32,12 @@
         />
 
 
-   <item
-        android:id="@+id/menu_all_read"
-        android:icon="@drawable/ic_check"
-        android:title="@string/menu_all_read"
-        app:showAsAction="never"
-        />
+    <!-- <item
+          android:id="@+id/menu_all_read"
+          android:icon="@drawable/ic_check"
+          android:title="@string/menu_all_read"
+          app:showAsAction="never"
+          />-->
 
 
 

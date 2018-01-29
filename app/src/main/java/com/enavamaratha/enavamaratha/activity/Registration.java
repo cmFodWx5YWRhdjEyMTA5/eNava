@@ -31,6 +31,7 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
 
 import java.io.IOException;
 import java.text.DateFormat;
@@ -40,11 +41,11 @@ import java.util.Date;
 import static com.enavamaratha.enavamaratha.utils.ApplicationConstants.*;
 
 import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.client.HttpClient;
+import cz.msebera.android.httpclient.client.methods.HttpPost;
+import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 
 public class Registration extends AppCompatActivity {
-
-
-    private static final String TAG = Registration.class.getSimpleName();
 
     private ProgressDialog progressDialog;
     private RequestParams params = new RequestParams();
@@ -62,15 +63,33 @@ public class Registration extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences(USER_DETAILS,
                 Context.MODE_PRIVATE);
         String registrationId = prefs.getString(REG_ID, "");
+        boolean isFirstLaunch = prefs.getBoolean(IS_FIRST_TIME_LAUNCH, true);
+
 
         // If User is Already Register then goto Home Activity
+        // If user Register
         if (!TextUtils.isEmpty(registrationId)) {
 
-            Intent i = new Intent(getApplicationContext(), HomeActivity.class);
-            i.putExtra("regId", registrationId);
-            startActivity(i);
-            finish();
+
+            // If User Not First Launch then goto Home
+            if (!isFirstLaunch) {
+                Intent i = new Intent(getApplicationContext(), LadningActivity.class);
+                i.putExtra("regId", registrationId);
+                startActivity(i);
+                finish();
+            }
+
+            // Else show App Intro slider
+            else {
+                Intent i = new Intent(getApplicationContext(), AppIntroActivity.class);
+                startActivity(i);
+                finish();
+            }
+
+
+
         }
+
 
 
         initView();
@@ -96,6 +115,9 @@ public class Registration extends AppCompatActivity {
 
         progressDialog = new ProgressDialog(this);
         progressDialog.setMessage("Please Wait...");
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.setCancelable(false);
+
     }
 
 
@@ -126,7 +148,6 @@ public class Registration extends AppCompatActivity {
 
 
             // Using TextWatcher
-
 
             // Add TextChanged Listener
             editname.addTextChangedListener(new ValidateText(editname, ttlName));
@@ -189,10 +210,6 @@ public class Registration extends AppCompatActivity {
     private void RegisterUserWithServer(final String UserName, final String Contact, String EMail, String DevId, final String UserRegId)
     {
 
-
-        progressDialog.show();
-
-
         params.put("devId", DevId);
         params.put("regId", UserRegId);
         params.put("name", UserName);
@@ -202,15 +219,77 @@ public class Registration extends AppCompatActivity {
 
         // Make RESTful webservice call using AsyncHttpClient object
         AsyncHttpClient client = new AsyncHttpClient();
+        final int DEFAULT_TIMEOUT = 20 * 1000;
+        client.setConnectTimeout(DEFAULT_TIMEOUT);
+        client.setResponseTimeout(35000);
+        client.post(ApplicationConstants.APP_SERVER_URL, params, new TextHttpResponseHandler() {
 
-        client.post(ApplicationConstants.APP_SERVER_URL, params,
+
+            @Override
+            public void onStart() {
+                super.onStart();
+                progressDialog.show();
+
+            }
+
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+
+
+                if (progressDialog != null) {
+                    progressDialog.dismiss();
+                }
+
+
+                Toast.makeText(Registration.this, "Try Again!", Toast.LENGTH_SHORT).show();
+
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+
+                storeRegIdinSharedPref(getApplicationContext(), UserRegId, UserName, Contact);
+
+                FeedDataContentProvider.addFeed(Registration.this, ur, nam, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url, nam1, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url1, name1, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url2, name2, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url4, name4, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url5, name5, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url6, name6, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url7, name7, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url8, name8, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url9, name9, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url10, name10, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url11, name11, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url12, name12, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url13, name13, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url14, name14, true, "", "", 0);
+                FeedDataContentProvider.addFeed(Registration.this, url15, name15, true, "", "", 0);
+
+                if (progressDialog != null) {
+                    progressDialog.dismiss();
+                }
+
+
+                Toast.makeText(Registration.this, "Registered successfully!", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(getApplicationContext(), AppIntroActivity.class);
+                startActivity(intent);
+                finish();
+
+            }
+
+
+        });
+
+
+        // Old Connection
+        /*client.post(ApplicationConstants.APP_SERVER_URL, params,
                 new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int i, Header[] headers, byte[] bytes) {
-
-                        if (progressDialog != null) {
-                            progressDialog.dismiss();
-                        }
 
                         storeRegIdinSharedPref(getApplicationContext(), UserRegId, UserName, Contact);
 
@@ -231,10 +310,14 @@ public class Registration extends AppCompatActivity {
                         FeedDataContentProvider.addFeed(Registration.this, url14, name14, true,"","",0);
                         FeedDataContentProvider.addFeed(Registration.this, url15, name15, true,"","",0);
 
+                        if (progressDialog != null) {
+                            progressDialog.dismiss();
+                        }
+
+
                         Toast.makeText(Registration.this, "Registered successfully!", Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-                        intent.putExtra("regId", UserRegId);
+                        Intent intent = new Intent(getApplicationContext(), AppIntroActivity.class);
                         startActivity(intent);
                         finish();
 
@@ -243,6 +326,10 @@ public class Registration extends AppCompatActivity {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+
+                        Log.e("Register", "onFailure: Error --- "+error.getMessage());
+                        Log.e("Register", "onFailure: Status Code  --- "+statusCode);
 
 
                         if (progressDialog != null) {
@@ -273,7 +360,7 @@ public class Registration extends AppCompatActivity {
 
                     }
 
-                });
+                });*/
 
 
     }

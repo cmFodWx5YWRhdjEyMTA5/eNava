@@ -407,10 +407,7 @@ public class Epaper extends AppCompatActivity  {
     }
 
 
-
-
-
-    // for checking in background paper is avlaible or not in server
+    // for checking in background paper is avilable or not in server
     public class MyTask extends AsyncTask<String, Integer, Boolean> {
 
 

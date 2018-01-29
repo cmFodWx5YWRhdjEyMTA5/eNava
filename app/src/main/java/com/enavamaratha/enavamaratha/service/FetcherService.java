@@ -62,12 +62,16 @@ import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Xml;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 
@@ -222,8 +226,13 @@ public class FetcherService extends IntentService {
                 PrefUtils.putLong(PrefUtils.LAST_SCHEDULED_REFRESH, SystemClock.elapsedRealtime());
             }
 
-            long keepTime = Long.parseLong(PrefUtils.getString(PrefUtils.KEEP_TIME, "4")) * 86400000l;
+
+            // Default 30 Days feeds will come/ 1 Month
+            long keepTime = Long.parseLong(PrefUtils.getString(PrefUtils.KEEP_TIME, "30")) * 86400000l;
+
+
             long keepDateBorderTime = keepTime > 0 ? System.currentTimeMillis() - keepTime : 0;
+
 
             deleteOldEntries(keepDateBorderTime);
 
@@ -231,9 +240,7 @@ public class FetcherService extends IntentService {
             int newCount = (feedId == null ? refreshFeeds(keepDateBorderTime) : refreshFeed(feedId, keepDateBorderTime));
 
 
-
-
-            // our custom notification : for top 5 thaltak news notifications
+            // our custom notification : for top 5 thalak news notifications
 
 
             if(newCount>0)
@@ -247,7 +254,7 @@ public class FetcherService extends IntentService {
                     String feed="1";
                     String setflag="yes";
 
-                    // select * from entries where feedid = 1 and flag is null order by ... limit  5
+                    // select * from entries where feedid = 1 and flag is null order by date desc... limit  5
                     String fil =   EntryColumns.FEED_ID +" = '1'" +" AND " + EntryColumns.FLAG +Constants.DB_IS_NULL ;
 
                     String orderBy = EntryColumns.DATE + " DESC"; // order by desc
@@ -264,6 +271,9 @@ public class FetcherService extends IntentService {
                     mGuidpos=cursor.getColumnIndex(EntryColumns.GUID);
                     int n = 1;
 
+
+                    // Old Notification
+
                     if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst())
                     {
                         newCount = cursor.getInt(0);
@@ -275,13 +285,17 @@ public class FetcherService extends IntentService {
 
                             String Imageuri = cursor.getString(mMainImgPos);
 
+
+                            // Update flag of news notification we send
                             ContentValues updatevalues = new ContentValues();
                             updatevalues.put(EntryColumns.FLAG, setflag);
                             database.update(EntryColumns.TABLE_NAME, updatevalues, EntryColumns.FEED_ID + "=?", new String[]{feed});
 
                             if (newCount > 0)
                             {
-                                Bitmap bitmap;
+
+                                // Dyanamic image of news show in notification
+                              /*  Bitmap bitmap;
 
                                 if(Imageuri !=null)
                                 {
@@ -291,7 +305,7 @@ public class FetcherService extends IntentService {
                                 {
                                     bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(),
                                             R.drawable.llogo);
-                                }
+                                }*/
 
                                 // Notification intent for updated news to show
                                 Intent notificationIntent = new Intent(FetcherService.this, HomeActivity.class);
@@ -300,15 +314,26 @@ public class FetcherService extends IntentService {
                                 PendingIntent contentIntent = PendingIntent.getActivity(FetcherService.this, n, notificationIntent,
                                         PendingIntent.FLAG_UPDATE_CURRENT);
 
+                                Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.llogo);
+
                                 Notification.Builder notifBuilder = new Notification.Builder(MainApplication.getContext()) //
-                                        .setContentIntent(contentIntent) //
-                                        .setContentTitle("ठळक बातम्या")
-                                        .setSmallIcon(R.drawable.ic_statusbar_rss)
-                                        .setLargeIcon(bitmap)
-                                        .setContentText(res)
+                                        .setContentIntent(contentIntent)
+                                        .setContentTitle(res)
+                                        .setSmallIcon(getNotificationIcon())
                                         .setWhen(System.currentTimeMillis()) //
                                         .setAutoCancel(true) //
                                         .setLights(0xffffffff, 0, 0);
+
+
+                                // Above Marshmallow only show small icon
+                                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+
+                                    notifBuilder.setPriority(Notification.PRIORITY_MAX);
+                                    notifBuilder.setLargeIcon(largeIcon);
+                                    notifBuilder.setColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
+
+                                }
+
 
 
                                 if (PrefUtils.getBoolean(PrefUtils.NOTIFICATIONS_VIBRATE, false)) {
@@ -358,7 +383,17 @@ public class FetcherService extends IntentService {
         }
     }
 
-    // for downlaod image for logo in notification
+
+    private int getNotificationIcon() {
+
+        boolean useWhiteIcon = (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP);
+        return useWhiteIcon ? R.drawable.ic_notification_name : R.drawable.llogo;
+
+        // return useWhiteIcon ? R.drawable.notifi_logo : R.drawable.llogo;
+    }
+
+
+    // for download image for logo in notification
     public Bitmap getBitmapFromURL(String strURL) {
         try {
             URL url = new URL(strURL);
@@ -578,7 +613,7 @@ public class FetcherService extends IntentService {
                 public Integer call() {
                     int result = 0;
                     try {
-                       // Log.i("FecherService SpaRss","Completion Service Loop Calling Result : "+result);
+                        // Log.i("FecherService SpaRss","Completion Service Loop Calling Result : "+result);
                         result = refreshFeed(feedId, keepDateBorderTime);
                     } catch (Exception ignored) {
                     }
@@ -631,7 +666,7 @@ public class FetcherService extends IntentService {
                 connection = NetworkUtils.setupConnection(feedUrl,httpAuthLoginValue, httpAuthPassValue);
                 String contentType = connection.getContentType();
                 int fetchMode = cursor.getInt(fetchModePosition);
-               // Log.i("FetcherSErvice SpaRss", "Fetch Mode :" + fetchMode);
+                // Log.i("FetcherSErvice SpaRss", "Fetch Mode :" + fetchMode);
                 handler = new RssAtomParser(new Date(cursor.getLong(realLastUpdatePosition)), keepDateBorderTime, id, cursor.getString(titlePosition), feedUrl,
                         cursor.getInt(retrieveFullscreenPosition) == 1);
                 handler.setFetchImages(NetworkUtils.needDownloadPictures());
@@ -842,6 +877,103 @@ public class FetcherService extends IntentService {
 
         return handler != null ? handler.getNewCount() : 0;
     }
+
+
+
+   /* public void customNotification(Cursor cursor,int newCount)
+    {
+
+
+        String feed="1";
+        String setflag="yes";
+        String res, guid ="";
+
+
+        int totalnum = cursor.getCount();
+        titlepos = cursor.getColumnIndex(EntryColumns.TITLE);
+        mMainImgPos = cursor.getColumnIndex(EntryColumns.IMAGE_URL);
+        mGuidpos=cursor.getColumnIndex(EntryColumns.GUID);
+        int n = 1;
+
+
+
+
+        // Using RemoteViews to bind custom layouts into Notification
+        RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.layout_custom_notification);
+
+        if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst())
+        {
+            newCount = cursor.getInt(0);
+            do {
+                res = cursor.getString(titlepos);
+                guid = cursor.getString(mGuidpos);
+
+
+
+                String Imageuri = cursor.getString(mMainImgPos);
+
+                ContentValues updatevalues = new ContentValues();
+                updatevalues.put(EntryColumns.FLAG, setflag);
+                database.update(EntryColumns.TABLE_NAME, updatevalues, EntryColumns.FEED_ID + "=?", new String[]{feed});
+
+                if (newCount > 0) {
+                    Bitmap bitmap;
+
+                    if (Imageuri != null) {
+                        bitmap = getBitmapFromURL(Imageuri);
+                    } else {
+                        bitmap = BitmapFactory.decodeResource(getApplicationContext().getResources(),
+                                R.drawable.llogo);
+                    }
+
+
+                    // Set Image
+                    remoteViews.setImageViewBitmap(R.id.img_notification_left,bitmap);
+                    Log.e("FecherSErvice", "customNotification: Called------------------ Title "+res);
+
+
+                    remoteViews.setTextViewText(R.id.txt_noti_title,res);
+                    // Notification intent for updated news to show
+                    Intent notificationIntent = new Intent(FetcherService.this, HomeActivity.class);
+                    notificationIntent.putExtra("url", guid);
+
+                    PendingIntent contentIntent = PendingIntent.getActivity(FetcherService.this, n, notificationIntent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+                    NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
+                            .setSmallIcon(R.drawable.llogo)
+                            .setContent(remoteViews)
+                            .setContentIntent(contentIntent)
+                            .setAutoCancel(true)
+                            .setWhen(System.currentTimeMillis());
+
+
+                  //  mNotificationManager.notify(1, notificationBuilder.build());
+
+
+                    Constants.NOTIF_MGR.notify(n, notificationBuilder.getNotification());
+
+                    n++;
+                }
+
+
+            }
+            while (cursor.moveToNext());
+
+
+        }
+
+        cursor.close();
+        database.close();
+
+
+
+
+    }
+
+*/
+
 }
 
 

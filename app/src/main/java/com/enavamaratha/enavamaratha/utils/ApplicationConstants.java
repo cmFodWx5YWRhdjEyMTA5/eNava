@@ -19,10 +19,17 @@ public final class ApplicationConstants
     public static final String FIREBASEREGID = "firebaseRegId";
     public static final String USER_NAME = "userName";
     public static final int NOTIFICATION_ID = 1;
+    public static final String IS_FIRST_TIME_LAUNCH = "IsFirstTimeLaunch";
+
+    // http://enavamaratha.com/archives/category/headlines/feed/?orderby=modified
 
 
+    // localhost url feed for testing
+    // public static final String ur = "http://192.168.1.105/NM/category/headlines/feed?orderby=modified";
     // All Feeds Url
+
     public static final String ur = "http://enavamaratha.com/category/headlines/feed/?orderby=modified";
+
     public static final String url = "http://enavamaratha.com/category/econo/feed/?orderby=modified";
     public static final String url1 = "http://enavamaratha.com/category/health/feed/?orderby=modified";
     public static final String url2 = "http://enavamaratha.com/category/scien/feed/?orderby=modified";
@@ -51,11 +58,11 @@ public final class ApplicationConstants
     public static final String name6 = "राशिभविष्य ";
     public static final String name7 = "मुलाखत";
     public static final String name8 = "पर्यटन";
-    public static final String name9 = " वास्तू ";
-    public static final String name10 = "पाककला ";
-    public static final String name11 = " मुलांचे विषय ";
-    public static final String name12 = "सामन्य ज्ञान";
-    public static final String name13 = " सुविचार ";
+    public static final String name9 = "वास्तू";
+    public static final String name10 = "पाककला";
+    public static final String name11 = "मुलांचे विश्व ";
+    public static final String name12 = "सामान्य ज्ञान ";
+    public static final String name13 = "सुविचार";
     public static final String name14 = "नोकरी विषयी";
     public static final String name15 = "प्रॉप्रटी";
 
@@ -64,7 +71,6 @@ public final class ApplicationConstants
 
     public static final String POLL_ADDRESS = "http://enavamaratha.com/pollform.html";
     public static final String QUIZ_ADDRESS = "http://enavamaratha.com/quizform.html";
-
 
 
 }

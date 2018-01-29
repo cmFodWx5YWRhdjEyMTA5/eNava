@@ -122,6 +122,7 @@ public class RssAtomParser extends DefaultHandler {
     private static final String ATTRIBUTE_LENGTH = "length";
     private static final String ATTRIBUTE_REL = "rel";
 
+
     private static final String[][] TIMEZONES_REPLACE = {{"MEST", "+0200"}, {"EST", "-0500"}, {"PST", "-0800"}};
 
     private static final DateFormat[] PUBDATE_DATE_FORMATS = {
@@ -160,6 +161,8 @@ public class RssAtomParser extends DefaultHandler {
     private boolean mLastBuildDateTagEntered = false;
     private boolean mGuidTagEntered = false;
     private boolean mAuthorTagEntered = false;
+
+    private boolean mPostFlagTagEntered = false;
     private StringBuilder mTitle;
     private StringBuilder mDateStringBuilder;
     private String mFeedLink;
@@ -167,6 +170,7 @@ public class RssAtomParser extends DefaultHandler {
     private Date mEntryUpdateDate;
     private Date mPreviousEntryDate;
     private Date mPreviousEntryUpdateDate;
+
     private StringBuilder mEntryLink;
     private StringBuilder mDescription;
     private StringBuilder mEnclosure;
@@ -181,6 +185,8 @@ public class RssAtomParser extends DefaultHandler {
     private StringBuilder mAuthor, mTmpAuthor;
     final String DATABASE_NAME = "FeedEx.db";
     SQLiteDatabase db;
+
+
     public RssAtomParser(Date realLastUpdateDate, long keepDateBorderTime, final String id, String feedName, String url, boolean retrieveFullText) {
         mKeepDateBorder = new Date(keepDateBorderTime);
         mRealLastUpdateDate = realLastUpdateDate;
@@ -297,6 +303,7 @@ public class RssAtomParser extends DefaultHandler {
                 mTmpAuthor = new StringBuilder();
             }
         }
+
     }
 
     private void startEnclosure(Attributes attributes, String url) {
@@ -332,6 +339,7 @@ public class RssAtomParser extends DefaultHandler {
         } else if (mAuthorTagEntered) {
             mTmpAuthor.append(ch, start, length);
         }
+
     }
 
     @Override
@@ -477,28 +485,58 @@ public class RssAtomParser extends DefaultHandler {
                         mNewCount++;
                     }
 
-                    // when any update post  is avaliable then update
+                    // when any update post is available then  delete that post and insert with new post
                     if(isUpdated )
                     {
                         db = MainApplication.getContext().openOrCreateDatabase(DATABASE_NAME, Context.MODE_PRIVATE, null);
 
                         String select=EntryColumns.GUID +"=?";
+                        String oldDate = "";
+
+                        String[] cols = new String[]{FeedData.EntryColumns._ID, FeedData.EntryColumns.FEED_ID, FeedData.EntryColumns.GUID, EntryColumns.DATE};
+                        String filter = FeedData.EntryColumns.GUID + "='" + guidString + "'";
+                        Cursor cursor = db.query(FeedData.EntryColumns.TABLE_NAME, cols, filter, null, null, null, null, null);
+
+
+                        // If updated post then get post's old date from database
+
+                        if (cursor != null && cursor.getCount() > 0 && cursor.moveToFirst()) {
+
+                            int date = cursor.getColumnIndex(FeedData.EntryColumns.DATE);
+                            oldDate = cursor.getString(date);
+
+                            cursor.close();
+
+                        }
 
                         if (mEntryDate != null)
                         {
-                            values.put(EntryColumns.DATE, mEntryDate.getTime());
+                            // We need to only update content of entry so we dont update entry date ,
+                            // we insert old date of that entry, we don't change date of that entry
+                            // we don't want updated entry on top so
+                            //  And we need to insert long so we convert string to long
+
+                            // Old Code ----- we insert updated entry date
+                            //values.put(EntryColumns.DATE, mEntryDate.getTime());
+
+                            // put old date of that post and update all content
+                            values.put(EntryColumns.DATE, Long.parseLong(oldDate));
+
                         }
+
                         values.put(EntryColumns.LINK, entryLinkString);
 
                         mInsertedEntriesImages.add(imagesUrls);
 
+                        // for not to send notifications of updated post
+                        //  because if flag is yes we don't send notificaitons
                         String flagvalue="yes";
                         values.put(EntryColumns.FLAG, flagvalue);
 
+                        //  delete existing post and insert with new post
                         long l = db.delete(EntryColumns.TABLE_NAME,select,new String[]{guidString});
 
                         mInserts.add(ContentProviderOperation.newInsert(mFeedEntriesUri).withValues(values).build());
-
 
                         db.close();
 
@@ -507,6 +545,8 @@ public class RssAtomParser extends DefaultHandler {
                     if (isUpdated && mEntryDate == null) {
                         cancel();
                     }
+
+
                 }
             } else {
                 //to fix https://github.com/Etuldan/spaRSS/issues/200

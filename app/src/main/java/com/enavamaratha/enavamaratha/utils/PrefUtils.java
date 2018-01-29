@@ -6,6 +6,8 @@ import android.preference.PreferenceManager;
 
 import com.enavamaratha.enavamaratha.MainApplication;
 
+import static com.enavamaratha.enavamaratha.utils.ApplicationConstants.USER_DETAILS;
+
 public class PrefUtils {
 
     public static final String FIRST_OPEN = "FIRST_OPEN";
@@ -46,6 +48,7 @@ public class PrefUtils {
     public static final String LAST_SCHEDULED_REFRESH = "lastscheduledrefresh";
 
     public static final String SHOW_READ = "show_read";
+
 
     public static boolean getBoolean(String key, boolean defValue) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(MainApplication.getContext());
@@ -110,4 +113,6 @@ public class PrefUtils {
         } catch (Exception ignored) { // Seems to be possible to have a NPE here... Why??
         }
     }
+
+
 }

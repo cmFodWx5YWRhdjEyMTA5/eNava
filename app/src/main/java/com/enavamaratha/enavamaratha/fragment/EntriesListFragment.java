@@ -1,6 +1,10 @@
 package  com.enavamaratha.enavamaratha.fragment;
 
+
+import android.animation.Animator;
+import android.app.Fragment;
 import android.app.LoaderManager;
+import android.app.SearchManager;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -11,8 +15,11 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Gravity;
@@ -26,10 +33,15 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
+import android.widget.Filter;
+import android.widget.FilterQueryProvider;
+import android.widget.Filterable;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 //import com.enavamaratha.enavamaratha.view.SwipeRefreshLayout;
+import com.enavamaratha.enavamaratha.view.SimpleAnimationListener;
 import com.melnykov.fab.FloatingActionButton;
 
 import  com.enavamaratha.enavamaratha.Constants;
@@ -42,6 +54,8 @@ import  com.enavamaratha.enavamaratha.provider.FeedDataContentProvider;
 import  com.enavamaratha.enavamaratha.service.FetcherService;
 import  com.enavamaratha.enavamaratha.utils.PrefUtils;
 import  com.enavamaratha.enavamaratha.utils.UiUtils;
+
+import org.cryse.widget.persistentsearch.PersistentSearchView;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -64,11 +78,15 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
     private EntriesListFragment mEntriesFragment;
     private long mListDisplayDate = new Date().getTime();
     private Menu menu;
-    private SearchView searchView = null;
     private SearchView.OnQueryTextListener queryTextListener;
     private String extra;
     private long entryid;
     public static final int REFRESH_DELAY = 2000;
+    SearchView srchView;
+    PersistentSearchView persistentSearchView;
+    private View mSearchTintView;
+    private MenuItem mSearchMenuItem;
+    private TextView txtView;
     //private SwipeRefreshLayout swipe;
 
 
@@ -190,6 +208,7 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
 
 
         mListView = (ListView) rootView.findViewById(android.R.id.list);
+        txtView = (TextView) rootView.findViewById(android.R.id.empty);
         //mSwipeL =(SwipeRefreshLayout)rootView.findViewById(R.id.swipe);
         mListView.setOnTouchListener(new SwipeGestureListener(mListView.getContext()));
         //mWave = (WaveSwipeRefreshLayout)rootView.findViewById(R.id.WaveRefresh);
@@ -218,14 +237,115 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
         UiUtils.addEmptyFooterView(mListView, 50);
 
 
-        mSearchView = (SearchView) rootView.findViewById(R.id.searchView);
+        // Old Search View Code
+        // Change For Search from direct news
+      /*  mSearchView = (SearchView) rootView.findViewById(R.id.searchView);
         mSearchView.setQueryHint("Type Search Text Here...");
+
+*/
+        persistentSearchView = (PersistentSearchView) rootView.findViewById(R.id.searchview11);
+
+
+        mSearchTintView = rootView.findViewById(R.id.view_search_tint);
+
+        mSearchTintView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                persistentSearchView.cancelEditing();
+            }
+        });
+
+
+        persistentSearchView.setHomeButtonListener(new PersistentSearchView.HomeButtonListener() {
+            @Override
+            public void onHomeButtonClick() {
+       /* Toast.makeText(getActivity(), "Menu click",
+                Toast.LENGTH_LONG).show();*/
+
+                ((HomeActivity) getActivity()).selectDrawerItem(3);
+            }
+        });
+
+
+        persistentSearchView.setSearchListener(new PersistentSearchView.SearchListener() {
+            @Override
+            public void onSearchCleared() {
+
+            }
+
+            @Override
+            public void onSearchTermChanged(String term) {
+
+            }
+
+            @Override
+            public void onSearch(String query) {
+
+                setData(EntryColumns.SEARCH_URI(query), true);
+            }
+
+            @Override
+            public void onSearchEditOpened() {
+
+                mSearchTintView.setVisibility(View.VISIBLE);
+                mSearchTintView
+                        .animate()
+                        .alpha(1.0f)
+                        .setDuration(300)
+                        .setListener(new SimpleAnimationListener())
+                        .start();
+
+                // mSearchTintView.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onSearchEditClosed() {
+
+                mSearchTintView
+                        .animate()
+                        .alpha(0.0f)
+                        .setDuration(300)
+                        .setListener(new SimpleAnimationListener() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                mSearchTintView.setVisibility(View.GONE);
+                            }
+                        })
+                        .start();
+                // mSearchTintView.setVisibility(View.GONE);
+            }
+
+            @Override
+            public boolean onSearchEditBackPressed() {
+                if (persistentSearchView.isEditing()) {
+                    persistentSearchView.cancelEditing();
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void onSearchExit() {
+
+                //  On Search Exit goto Headlines Section
+                persistentSearchView.closeSearch();
+                ((HomeActivity) getActivity()).selectDrawerItem(3);
+
+
+            }
+        });
+
+
 
         if (savedInstanceState != null) {
             refreshUI(); // To hide/show the search bar
         }
 
-        mSearchView.post(new Runnable() { // Do this AFTER the text has been restored from saveInstanceState
+
+        // ORIGINAL CODE FOR SEARCH VIEW
+        // Using Persistent Search view so commenting this code
+       /* mSearchView.post(new Runnable() { // Do this AFTER the text has been restored from saveInstanceState
             @Override
             public void run() {
                 mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -243,7 +363,8 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
                     }
                 });
             }
-        });
+        });*/
+
 
         disableSwipe();
 
@@ -294,10 +415,10 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
         inflater.inflate(R.menu.entry_list, menu);
 
 
-        if (!PrefUtils.getBoolean(PrefUtils.MARK_AS_READ, false))
+       /* if (!PrefUtils.getBoolean(PrefUtils.MARK_AS_READ, false))
         {
             menu.findItem(R.id.menu_all_read).setVisible(true);
-        }
+        }*/
         if (EntryColumns.FAVORITES_CONTENT_URI.equals(mUri))
         {
             menu.findItem(R.id.menu_refresh).setVisible(true);
@@ -307,6 +428,7 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
 
         }
 
+        mSearchMenuItem = menu.findItem(R.id.menu_news_search);
 
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -350,7 +472,21 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
                 startRefresh();
                 return true;
             }
-            case R.id.menu_all_read: {
+
+
+            case R.id.menu_news_search:
+                if (mSearchMenuItem != null) {
+                    persistentSearchView.setVisibility(View.VISIBLE);
+                    txtView.setVisibility(View.GONE);
+                    // openSearch();
+                    return true;
+                } else {
+                    return false;
+                }
+
+
+
+           /* case R.id.menu_all_read: {
                 if (mEntriesCursorAdapter != null) {
                     mEntriesCursorAdapter.markAllAsRead(mListDisplayDate);
 
@@ -360,12 +496,19 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
                     }
                 }
                 return true;
-            }
+            }*/
 
         }
-        searchView.setOnQueryTextListener(queryTextListener);
+
         return super.onOptionsItemSelected(item);
 
+    }
+
+
+    public void openSearch() {
+        View menuItemView = (getActivity()).findViewById(R.id.menu_news_search);
+        persistentSearchView.setStartPositionFromMenuItem(menuItemView);
+        persistentSearchView.openSearch();
     }
     /**
      * Schedules all entries which are not mobilized yet, for download.
@@ -414,7 +557,8 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
     }
 
     public String getCurrentSearch() {
-        return mSearchView == null ? null : mSearchView.getQuery().toString();
+        return persistentSearchView == null ? null : persistentSearchView.getSearchText().toString();
+        // return mSearchView == null ? null : mSearchView.getQuery().toString();
     }
 
     public void setData(Uri uri, boolean showFeedInfo) {
@@ -439,9 +583,15 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
 
     private void refreshUI() {
         if (mUri != null && FeedDataContentProvider.URI_MATCHER.match(mUri) == FeedDataContentProvider.URI_SEARCH) {
-            mSearchView.setVisibility(View.VISIBLE);
+
+            persistentSearchView.setVisibility(View.VISIBLE);
+            txtView.setVisibility(View.GONE);
+            // mSearchView.setVisibility(View.VISIBLE);
+
         } else {
-            mSearchView.setVisibility(View.GONE);
+            persistentSearchView.setVisibility(View.GONE);
+            //  mSearchView.setVisibility(View.GONE);
+
         }
     }
 
@@ -452,7 +602,6 @@ public class EntriesListFragment extends SwipeRefreshListFragment {
             hideSwipeProgress();
         }
     }
-
 
 
 

@@ -36,11 +36,9 @@ import com.enavamaratha.enavamaratha.utils.GetePaperUrlDateFormat;
 public class GcmNotification extends AppCompatActivity {
 
     public DBManager dbManager;
-    TextView idTextView, titleTextView, descTextView;
     public ListView listView;
-    ImageView ads,ads1;
 
-    public SimpleCursorAdapter adapter;
+
     private NotificationAdapter mAdapter;
 
     private DatabaseHelper dbHelper;
@@ -50,14 +48,6 @@ public class GcmNotification extends AppCompatActivity {
     private SQLiteDatabase database;
     private SQLiteDatabase datab;
 
-
-    final String[] from = new String[]{DatabaseHelper._ID,
-            DatabaseHelper.MESSAGE, DatabaseHelper.TIME};
-
-    final int[] to = new int[]{R.id.id, R.id.title, R.id.desc};
-    private long _id;
-
-    int idt;
     String url;
     String urltype;
     private Cursor cursor;
@@ -195,11 +185,16 @@ public class GcmNotification extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int ii) {
 
                         // Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-                        // Get the state's capital from this listview_item_row in the database.
 
-                        dbManager.delete(ID); // sqlcon is one my class, InfoAPI object
+                        dbManager.delete(ID);
+                        cursor.requery();
+                        mAdapter.notifyDataSetChanged();
 
-                        adapter.notifyDataSetChanged();
+
+                      /*  mAdapter.swapCursor(cursor);
+                        listView.setAdapter(mAdapter);*/
+
+                        //  adapter.notifyDataSetChanged();
                         // cursor.close();
 
                     }
@@ -341,7 +336,8 @@ public class GcmNotification extends AppCompatActivity {
 
                     dbManager.deleteall();
                     listView.setAdapter(null);
-                    adapter.notifyDataSetChanged();
+                    mAdapter.notifyDataSetChanged();
+                    //   adapter.notifyDataSetChanged();
                     Toast.makeText(GcmNotification.this, "All notifications deleted", Toast.LENGTH_LONG).show();
                     dialog.dismiss();
                 }
@@ -371,11 +367,15 @@ public class GcmNotification extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+
+
+        //  super.onBackPressed();
+
         //super.onBackPressed();
-        Intent intt = new Intent(GcmNotification.this,HomeActivity.class);
+      /*  Intent intt = new Intent(GcmNotification.this,HomeActivity.class);
         intt.putExtra("home","home");
         startActivity(intt);
-        finish();
+        finish();*/
 
     }
 }

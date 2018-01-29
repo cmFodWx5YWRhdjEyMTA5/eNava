@@ -23,12 +23,15 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
+
 import  com.enavamaratha.enavamaratha.MainApplication;
 import  com.enavamaratha.enavamaratha.R;
 import com.enavamaratha.enavamaratha.activity.GeneralPrefsActivity;
 import com.enavamaratha.enavamaratha.activity.HomeActivity;
 import  com.enavamaratha.enavamaratha.service.RefreshService;
 import  com.enavamaratha.enavamaratha.utils.PrefUtils;
+import com.enavamaratha.enavamaratha.view.AutoSummaryListPreference;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

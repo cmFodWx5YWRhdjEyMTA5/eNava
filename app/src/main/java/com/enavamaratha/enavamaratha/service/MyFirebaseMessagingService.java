@@ -6,10 +6,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.enavamaratha.enavamaratha.R;
@@ -29,6 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static com.enavamaratha.enavamaratha.utils.ApplicationConstants.NOTIFICATION_ID;
+import static com.enavamaratha.enavamaratha.utils.ApplicationConstants.REG_ID;
+import static com.enavamaratha.enavamaratha.utils.ApplicationConstants.USER_DETAILS;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -109,16 +115,31 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Date date = new Date();
             String when = dateFormat.format(date);
 
-            if ((mUrl.contains(".")) || (mUrl.contains("/"))) {
-                dbManager.insert(message, when, mUrl, mUrlType);
-                sendNotification(message, mUrl, mUrlType, mNotificationHeading);
+            SharedPreferences prefs = getSharedPreferences(USER_DETAILS, Context.MODE_PRIVATE);
+            String registrationId = prefs.getString(REG_ID, "");
 
 
-            } else {
-                dbManager.insert(message, when, null, null);
-                sendNotification(message, null, mUrlType, mNotificationHeading);
+            // registrationId is not empty in Preference then show notifications and insert in Database
+            if (!TextUtils.isEmpty(registrationId)) {
 
 
+                if ((mUrl.contains(".")) || (mUrl.contains("/"))) {
+                    dbManager.insert(message, when, mUrl, mUrlType);
+                    sendNotification(message, mUrl, mUrlType, mNotificationHeading);
+
+
+                } else {
+                    dbManager.insert(message, when, null, null);
+                    sendNotification(message, null, mUrlType, mNotificationHeading);
+
+
+                }
+            }
+
+            // registrationId is empty in Preference then Don't show notifications and not store in database
+            else {
+
+                // Do Nothing if Register id is empty
             }
 
             dbManager.close();
@@ -153,36 +174,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resultIntent.putExtra("url", url);
                 resultIntent.putExtra("UrlType", urltype);
 
-                PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                NotificationCompat.Builder mNotifyBuilder;
-                NotificationManager mNotificationManager;
-
-                mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-                mNotifyBuilder = new NotificationCompat.Builder(this)
-                        .setContentTitle(NotificationTitle)
-                        .setWhen(System.currentTimeMillis()) //
-                        .setLights(0xffffffff, 0, 0)
-                        .setContentText(msg)
-                        .setAutoCancel(true)
-                        .setSmallIcon(getNotificationIcon());
-
-
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    mNotifyBuilder.setColor(ContextCompat.getColor(getApplicationContext(), R.color.red));
-                }
-
-                Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                mNotifyBuilder.setSound(alarmSound);
-                long[] pattern = {1000, 1000, 1000};
-                mNotifyBuilder.setVibrate(pattern);
-
-                mNotifyBuilder.setContentIntent(resultPendingIntent);
-
-
-                // Post a notification
-                mNotificationManager.notify(NOTIFICATION_ID, mNotifyBuilder.build());
+                sendNotifications(resultIntent, NotificationTitle, msg);
             }
 
             // If Urltype is Web then open that url in Webview
@@ -197,34 +190,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resultIntent.putExtra("Notification", url);
                 resultIntent.putExtra("UrlType", urltype);
 
-                PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                NotificationCompat.Builder mNotifyBuilder;
-                NotificationManager mNotificationManager;
+                sendNotifications(resultIntent, NotificationTitle, msg);
 
-                mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-                mNotifyBuilder = new NotificationCompat.Builder(this)
-                        .setContentTitle(NotificationTitle)
-                        .setWhen(System.currentTimeMillis()) //
-                        .setLights(0xffffffff, 0, 0)
-                        .setContentText(msg)
-                        .setAutoCancel(true)
-                        .setSmallIcon(getNotificationIcon());
-
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    mNotifyBuilder.setColor(ContextCompat.getColor(getApplicationContext(), R.color.red));
-                }
-
-                Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                mNotifyBuilder.setSound(alarmSound);
-                long[] pattern = {1000, 1000, 1000};
-                mNotifyBuilder.setVibrate(pattern);
-
-                mNotifyBuilder.setContentIntent(resultPendingIntent);
-
-                // Post a notification
-                mNotificationManager.notify(NOTIFICATION_ID, mNotifyBuilder.build());
             }
 
 
@@ -242,34 +210,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 resultIntent.putExtra("pdf", getDate.ePaperPdfName(url));
 
 
-                PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                sendNotifications(resultIntent, NotificationTitle, msg);
 
-                NotificationCompat.Builder mNotifyBuilder;
-                NotificationManager mNotificationManager;
-
-                mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-                mNotifyBuilder = new NotificationCompat.Builder(this)
-                        .setContentTitle(NotificationTitle)
-                        .setWhen(System.currentTimeMillis()) //
-                        .setLights(0xffffffff, 0, 0)
-                        .setContentText(msg)
-                        .setAutoCancel(true)
-                        .setSmallIcon(getNotificationIcon());
-
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                    mNotifyBuilder.setColor(ContextCompat.getColor(getApplicationContext(), R.color.red));
-                }
-
-                Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                mNotifyBuilder.setSound(alarmSound);
-                long[] pattern = {1000, 1000, 1000};
-                mNotifyBuilder.setVibrate(pattern);
-
-                mNotifyBuilder.setContentIntent(resultPendingIntent);
-
-                // Post a notification
-                mNotificationManager.notify(NOTIFICATION_ID, mNotifyBuilder.build());
             }
         } else {
             Intent resultIntent = new Intent(this, GcmNotification.class);
@@ -277,34 +219,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             resultIntent.putExtra("url", "");
             resultIntent.putExtra("UrlType", "");
 
-            PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-            NotificationCompat.Builder mNotifyBuilder;
-            NotificationManager mNotificationManager;
-
-            mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-            mNotifyBuilder = new NotificationCompat.Builder(this)
-                    .setContentTitle(NotificationTitle)
-                    .setWhen(System.currentTimeMillis()) //
-                    .setLights(0xffffffff, 0, 0)
-                    .setContentText(msg)
-                    .setAutoCancel(true)
-                    .setSmallIcon(getNotificationIcon());
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                mNotifyBuilder.setColor(ContextCompat.getColor(getApplicationContext(), R.color.red));
-            }
-
-            Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            mNotifyBuilder.setSound(alarmSound);
-            long[] pattern = {1000, 1000, 1000};
-            mNotifyBuilder.setVibrate(pattern);
-
-            mNotifyBuilder.setContentIntent(resultPendingIntent);
-
-            // Post a notification
-            mNotificationManager.notify(NOTIFICATION_ID, mNotifyBuilder.build());
+            sendNotifications(resultIntent, NotificationTitle, msg);
         }
     }
 
@@ -314,7 +230,54 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     // Above Marshmallow Transparent png image Required
     private int getNotificationIcon() {
         boolean useWhiteIcon = (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP);
-        return useWhiteIcon ? R.drawable.ic_trans_notification : R.drawable.ic_not_trans_notification;
+        return useWhiteIcon ? R.drawable.ic_notification_name : R.drawable.llogo;
+    }
+
+
+    private void sendNotifications(Intent resultIntent, String NotificationTitle, String msg) {
+
+
+        PendingIntent resultPendingIntent = PendingIntent.getActivity(this, 0, resultIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        NotificationCompat.Builder mNotifyBuilder;
+        NotificationManager mNotificationManager;
+
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.llogo);
+        mNotifyBuilder = new NotificationCompat.Builder(this)
+                .setContentTitle(NotificationTitle)
+                .setWhen(System.currentTimeMillis()) //
+                .setLights(0xffffffff, 0, 0)
+                .setContentText(msg)
+
+                .setAutoCancel(true)
+                .setSmallIcon(getNotificationIcon());
+
+
+        // Set Large Icon Above Marshmallow
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            mNotifyBuilder.setPriority(Notification.PRIORITY_MAX);
+            mNotifyBuilder.setLargeIcon(largeIcon);
+        }
+
+
+        // Set Color Above Marshmallow
+        // Set Notification Priority
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            mNotifyBuilder.setColor(ContextCompat.getColor(getApplicationContext(), R.color.white));
+
+        }
+
+
+        Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        mNotifyBuilder.setSound(alarmSound);
+        long[] pattern = {1000, 1000, 1000};
+        mNotifyBuilder.setVibrate(pattern);
+
+        mNotifyBuilder.setContentIntent(resultPendingIntent);
+
+        // Post a notification
+        mNotificationManager.notify(NOTIFICATION_ID, mNotifyBuilder.build());
     }
 
 

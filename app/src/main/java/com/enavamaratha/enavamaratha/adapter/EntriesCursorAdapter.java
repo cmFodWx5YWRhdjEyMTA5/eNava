@@ -224,6 +224,7 @@ public class EntriesCursorAdapter extends ResourceCursorAdapter {
         super.notifyDataSetInvalidated();
     }
 
+
     private void reinit(Cursor cursor) {
         if (cursor != null && cursor.getCount() > 0) {
             mIdPos = cursor.getColumnIndex(EntryColumns._ID);

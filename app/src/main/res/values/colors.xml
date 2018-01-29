@@ -47,4 +47,18 @@
     <color name="lightYelloow">#ffffcc</color>
     <color name="lightPink">#ffe6f2</color>
     <color name="lightBlue">#e6ecff</color>
+
+
+    <color name="bg_screen1">#f64c73</color>
+    <color name="bg_screen2">#20d2bb</color>
+    <color name="bg_screen3">#3395ff</color>
+    <color name="bg_screen4">#c873f4</color>
+    <color name="bg_screen5">#ffbf00</color>
+    <color name="bg_screen6">#ff704d</color>
+    <color name="bg_screen7">#ff66b3</color>
+    <color name="bg_screen8">#4dff4d</color>
+
+
+    <color name="bg_light_screen1">#f986a1</color>
+    <color name="bg_light_screen2">#7beadb</color>
 </resources>

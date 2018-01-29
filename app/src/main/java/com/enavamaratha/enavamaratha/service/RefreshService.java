@@ -1,8 +1,9 @@
+
 package com.enavamaratha.enavamaratha.service;
 
+import android.app.Service;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,15 +11,17 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.enavamaratha.enavamaratha.Constants;
+import com.enavamaratha.enavamaratha.service.FetcherService;
 import com.enavamaratha.enavamaratha.utils.PrefUtils;
 
-import org.json.JSONArray;
 
 public class RefreshService extends Service {
-   // public static final String SIXTY_MINUTES = "3600000";
-   public static final String SIXTY_MINUTES = "900000";
+    private static final String TAG = "RefreshService";
+
+    public static final String SIXTY_MINUTES = "3600000";
     private final OnSharedPreferenceChangeListener mListener = new OnSharedPreferenceChangeListener() {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
@@ -57,10 +60,11 @@ public class RefreshService extends Service {
             mAlarmManager.cancel(mTimerIntent);
         }
 
-        int time = 900000;
+        int time = 3600000;
         try {
             time = Math.max(60000, Integer.parseInt(PrefUtils.getString(PrefUtils.REFRESH_INTERVAL, SIXTY_MINUTES)));
         } catch (Exception ignored) {
+            Log.e(TAG, "Exception", ignored);
         }
 
         long elapsedRealTime = SystemClock.elapsedRealtime();
@@ -99,9 +103,4 @@ public class RefreshService extends Service {
             context.startService(new Intent(context, FetcherService.class).setAction(FetcherService.ACTION_REFRESH_FEEDS).putExtra(Constants.FROM_AUTO_REFRESH, true));
         }
     }
-
-
-
-
-
 }
